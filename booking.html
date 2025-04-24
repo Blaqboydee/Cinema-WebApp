@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>myCinema - Book Tickets</title>
+    <link rel="stylesheet" href="booking.css" />
+  <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=check" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lora&family=Poppins&display=swap" rel="stylesheet">
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  </head>
+  <body>
+    <button class="backButton" onclick="goBack()">Back</button>
+    <div class="ticketDetails">
+      <h1>Booking Confirmation</h1>
+      <p>Movie: <span id="movieTitle"></span></p>
+      <p>Seats: <span id="seatNumbers"></span> <span id="ticketQuantity"></span></p>
+      <p>Showtime: <span id="showTime"></span></p>
+
+     
+      <div class="ticketTypes">
+        <div class="standardTicket">
+          <div class="ticketInfo">
+           
+            <p class="ticketType">Standard Ticket</p>
+            <p class="price">N5,000</p>
+          </div>
+
+          <div class="btns">
+            <button id="addStandard" onclick="chooseStandard()">Buy Standard Ticket</button>
+     
+          </div>
+        </div>
+
+        <div class="premiumTicket">
+          <div class="ticketInfo">
+          
+            <p class="ticketType">Premium Ticket</p>
+            <p class="price">N8,000</p>
+          </div>
+
+          <div class="btns">
+            <button id="addPremium" onclick="choosePremium()">Buy Premium Ticket</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="reviewAndPay" style="display: none">
+        <button id="payButton" onclick="confirmBooking()">Pay</button>
+      </div>
+      <button id="logoutBtn" style="display: none;">Logout</button>
+    </div>
+  </body>
+</html>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
+    authDomain: "my-cinema-ffb85.firebaseapp.com",
+    databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
+    projectId: "my-cinema-ffb85",
+    storageBucket: "my-cinema-ffb85.appspot.com", 
+    messagingSenderId: "1049223253912",
+    appId: "1:1049223253912:web:4a244001cd80720753e5ed",
+    measurementId: "G-H8NBJJMKX3",
+  };
+
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const db = firebase.database(); 
+
+  console.log(db);
+
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const bookingId = urlParams.get("bookingId");
+
+  payButton.disabled = false;
+
+function getBookingIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("bookingId"); // Get 'bookingId' from the URL
+}
+
+  // Retrieve ticket data from localStorage
+const ticketData = JSON.parse(localStorage.getItem("ticketData"));
+// const selectedSeats = ticketData.seats;
+let loggedInUserMail = '';
+
+let reviewAndPay = document.querySelector('.reviewAndPay')
+if (ticketData) {
+    // Assign values to the elements
+    document.getElementById("movieTitle").innerText = ticketData.movie;
+    document.getElementById("seatNumbers").innerText = ticketData.seats.join(", ");
+    document.getElementById("ticketQuantity").innerText = `(${ticketData.seats.length})`;
+    document.getElementById("showTime").innerText = ticketData.showTime;
+} else {
+    console.error("No ticket data found in localStorage.");
+}
+
+
+
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+        alert("You must be logged in to access this page.");
+        window.location.href = "login.html"; // Redirect to login
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            logoutBtn.style.display = "block"; 
+            loggedInUserMail = user.email;
+            console.log(loggedInUserMail);
+            
+        } else {
+            logoutBtn.style.display = "none"; // Hide if no user
+        }
+    });
+
+
+
+logoutBtn.addEventListener("click", () => {
+        auth.signOut().then(() => {
+            alert("Logged out successfully.");
+            window.location.href = "index.html"; // Redirect to homepage
+        }).catch((error) => {
+            console.error("Logout Error:", error);
+        });
+    });
+});
+  
+  let standardPrice = 5000;
+  let premiumPrice = 8000;
+ let amountToPay = ''
+let ticketType = ''
+ 
+
+  function chooseStandard() {
+    ticketType = 'Standard'
+    console.log(ticketType)
+    amountToPay = standardPrice * ticketData.seats.length
+   reviewAndPay.style.display = 'flex'
+   payButton.innerHTML = `Pay N${amountToPay}`
+  }
+
+
+
+  function choosePremium() {
+    ticketType = 'Premium'
+    console.log(ticketType)
+  amountToPay = premiumPrice * ticketData.seats.length
+   reviewAndPay.style.display = 'flex'
+   payButton.innerHTML = `Pay N${amountToPay}`
+  }
+
+
+
+  function goBack() {
+  window.location.href = `index.html`
+}
+
+
+function areSeatsAvailable(location, showTime, selectedSeats) {
+    const seatChecks = selectedSeats.map(seat => {
+        const seatId = seat.replace("Seat ", "");
+        return firebase.database().ref(`seats/${location}/${showTime}/${seatId}`).once("value")
+            .then(snapshot => {
+                const seatData = snapshot.val();
+                return seatData && seatData.available; 
+            });
+    });
+
+    return Promise.all(seatChecks).then(results => results.every(status => status));
+}
+
+
+function confirmBooking() {
+  console.log(loggedInUserMail);
+  console.log(amountToPay);
+  
+   payButton.innerText = "Please wait..."
+   payButton.disabled = true
+
+    const ticketData = JSON.parse(localStorage.getItem("ticketData"));
+
+    if (!ticketData || !ticketData.seats || !ticketData.location || !ticketData.showTime) {
+        alert("No booking data found. Please select seats again.");
+        return;
+    }
+
+    const { location, showTime, seats: selectedSeats } = ticketData;
+
+    areSeatsAvailable(location, showTime, selectedSeats).then(available => {
+        if (available) {
+            console.log("Seats are available! Proceeding with payment...");
+            alert("Seats confirmed! Proceeding to payment.");
+
+            // Proceed with payment and Firebase update
+
+            const userid = auth. currentUser ? auth. currentUser.uid : Date.now(); // Use user ID if logged in, else generate tempor
+          saveBooking(loggedInUserMail, ticketData.location, ticketData.movie, selectedSeats, ticketData.showTime, ticketData.amount, ticketType, amountToPay);
+        } else {
+            console.log("Some seats are already booked! Please select different seats.");
+            alert("Some of your selected seats are no longer available. Please choose again.");
+        }
+    }).catch(error => {
+        console.error("Error checking seat availability:", error);
+        alert("An error occurred while checking seat availability. Please try again.");
+    });
+}
+
+
+
+function saveBooking(userEmail, location, movieTitle, selectedSeats, showTime, ticketQty) {
+    // Sanitize email: Replace "." with "_"
+    const sanitizedEmail = userEmail.replace(/\./g, "_"); 
+
+    // Generate a unique booking ID under the user's email
+    const bookingRef = firebase.database().ref(`bookings/${sanitizedEmail}`).push();
+    const ticketData = {
+        Email: userEmail,
+        amount: ticketQty,
+        movie: movieTitle,
+        seats: selectedSeats,
+        location: location,
+        showTime: showTime,
+        timestamp: new Date().toISOString(),
+        TypeOfTicket: ticketType,
+        Cost: amountToPay,
+    };
+
+    // Save booking to Firebase
+    bookingRef.set(ticketData)
+        .then(() => {+
+            console.log("Ticket Data Saved:", ticketData);
+
+            // Proceed with Payment
+            let handler = PaystackPop.setup({
+                key: 'pk_test_c6f4780655cfad6ec8716bd4c7be1215e46978de',
+                email: userEmail, // Use the sanitized email
+                amount: amountToPay * 100, // Convert to kobo
+                currency: "NGN",
+                callback: function (response) {
+                    console.log("Payment successful:", response);
+                    alert("Payment successful! Reference: " + response.reference);
+
+                    // Update seat availability in Firebase **after payment success**
+                    selectedSeats.forEach(seat => {
+                        const seatId = seat.replace("Seat ", ""); 
+                        firebase.database().ref(`seats/${location}/${showTime}/${seatId}`).update({ available: false });
+                    });
+
+                    // Redirect to success page
+                    window.location.href = `success.html?reference=${response.reference}`;
+                },
+                onClose: function () {
+                    alert("Transaction was not completed.");
+                }
+            });
+            handler.openIframe();
+        })
+        .catch(error => {
+            console.error("Error booking ticket:", error);
+        });
+}
+
+
+  
+</script>

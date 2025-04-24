@@ -1,0 +1,231 @@
+/* mediaQuery for index page */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  .selects select {
+    background-color: black;
+    border: 1px solid rgba(255, 255, 255, 0.39);
+    padding: 10px;
+    border-radius: 25px;
+    color: white;
+    width: 140px;
+    height: 50px;
+    font-weight: 700;
+    margin-left: 20px;
+  }
+  
+  
+  #movieDetails{
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .detailClass{
+    height: 100vh;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    gap: 30px;
+  }
+  
+  #movieDetails{
+    background-blend-mode: darken;
+    background-color: rgba(0, 0, 0, 0.62);
+  }
+  
+  .detailClass img{
+    width: 450px;
+    height: 65vh;
+  }
+  .movieDetailTitle{
+    font-size: 50px;
+    font-weight: 800;
+    margin: 0;
+  }
+  
+  .inside{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  
+  .movieDetailGenres{
+    font-size: 20px;
+    font-weight: 600;
+    margin: 20px 0;
+  }
+  
+  .movieDetailedOverview{
+    font-size: 15px;
+    font-weight: 500;
+    width: 50%;
+    word-spacing: 3px;
+  }
+  
+  .buyTicket{
+    width: 200px;
+    border: 2px solid black;
+    padding: 10px;
+    border-radius: 20px;
+    color: white;
+    background-color: rgb(74, 73, 73);
+    font-weight: 700;
+    border: 2px solid rgb(246, 243, 243);
+  }
+  
+  .movie-link{
+    text-decoration: none;
+  }
+  
+  
+  /* Full-screen layout */
+  
+  .backToMovies{
+    width: 200px;
+    border: 2px solid black;
+    padding: 10px;
+    border-radius: 20px;
+    color: white;
+    background-color: black;
+    font-weight: 700;
+    border: 2px solid rgb(244, 239, 239);
+  }
+  
+  
+   
+  
+  label{
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  .showtimeSection{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .dateAndtime {
+    width: 30%;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  /* Style the dropdown options */
+  .dateAndtime option {
+    background-color: #fff;
+    color: #333;
+    padding: 10px;
+    outline: none;
+  }
+  
+  #seatContainer {
+    margin: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* height: 60vh; */
+  }
+  
+  .seat {
+    width: 100px;
+    height: 100px;
+    background-color: rgb(189, 193, 189);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .booked {
+    background-color: red !important;
+    cursor: not-allowed;
+    color: white;
+  }
+  
+  .selected{
+    background-color: green;
+  }
+  
+  #logoutBtn{
+    /* background-color: rgb(201, 60, 60); */
+    color: red;
+    border: none;
+    padding: 6px;
+    font-weight: 700;
+    background: none;
+  }

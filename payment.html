@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        /* General Page Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Payment Container */
+#paymentDetails {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+/* Heading */
+#paymentDetails h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Payment Details */
+#paymentDetails p {
+    font-size: 16px;
+    color: #555;
+    margin: 10px 0;
+}
+
+/* Highlight Labels */
+#paymentDetails strong {
+    color: #222;
+}
+
+/* Pay Now Button */
+#payNow {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#payNow:hover {
+    background: #0056b3;
+}
+    </style>
+  </head>
+  <body>
+    <div id="paymentDetails"></div>
+  </body>
+</html>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
+    authDomain: "my-cinema-ffb85.firebaseapp.com",
+    databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
+    projectId: "my-cinema-ffb85",
+    storageBucket: "my-cinema-ffb85.appspot.com",
+    messagingSenderId: "1049223253912",
+    appId: "1:1049223253912:web:4a244001cd80720753e5ed",
+    measurementId: "G-H8NBJJMKX3",
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const db = firebase.database();
+
+  console.log(db);
+
+
+
+
+// Declare variables globally
+let loggedInUserMail = "";
+let movieLocation = "";
+let showTime = "";
+let selectedSeats = [];
+let ticketPrice = 0;
+
+// Wait for authentication
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        loggedInUserMail = user.email;
+        console.log("User email:", loggedInUserMail);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        movieLocation = urlParams.get("location");
+        showTime = urlParams.get("showTime");
+        selectedSeats = urlParams.get("seats") ? urlParams.get("seats").split(",") : []; // Convert to array
+        ticketPrice = urlParams.get("price");
+
+        document.getElementById("paymentDetails").innerHTML = `
+            <h2>Pay for Your Ticket</h2>
+            <p><strong>Location:</strong> ${movieLocation}</p>
+            <p><strong>Showtime:</strong> ${showTime}</p>
+            <p><strong>Seats:</strong> ${selectedSeats.join(", ")}</p>
+            <p><strong>Price:</strong> ${ticketPrice}</p>
+            <p><strong>Email:</strong> ${loggedInUserMail}</p>
+            <button id="payNow">Pay Now</button>
+        `;
+
+        document.getElementById("payNow").addEventListener("click", payWithPaystack);
+    } else {
+        console.log("No user is signed in.");
+    }
+});
+
+function payWithPaystack() {
+    let handler = PaystackPop.setup({
+        key: 'pk_test_c6f4780655cfad6ec8716bd4c7be1215e46978de',
+        email: loggedInUserMail,
+        amount: ticketPrice * 100,
+        currency: "NGN",
+        callback: function (response) {
+            console.log("Payment successful:", response);
+            alert("Payment successful! Reference: " + response.reference);
+
+            updateSeatsAfterPayment(movieLocation, showTime, selectedSeats);
+            window.location.href = `success.html?reference=${response.reference}`
+        },
+        onClose: function () {
+            alert("Transaction was not completed.");
+        }
+    });
+    handler.openIframe();
+}
+
+function updateSeatsAfterPayment(movieLocation, showTime, selectedSeats) {
+    selectedSeats.forEach(seat => {
+        const seatId = seat.replace("Seat ", "");
+        firebase.database().ref(`seats/${movieLocation}/${showTime}/${seatId}`).update({ available: false });
+    });
+
+    console.log("Seats marked as unavailable after payment.");
+}
+
+
+</script>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - myCinema</title>
+    <style>
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #111111;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contact Container */
+.contact-container {
+    background: #fff;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: center;
+    /* width: 90%; */
+    /* max-width: 400px; */
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+
+}
+
+h2{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+::placeholder{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 80%;
+}
+
+label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+textarea {
+    resize: none;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* Response Message */
+#responseMessage {
+    margin-top: 10px;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+    <div class="contact-container">
+        <h2>Contact Us</h2>
+        <p>If you have any questions or concerns, feel free to reach out to us.</p>
+
+        <form id="contactForm" action="https://formsubmit.co/adeoluwaadegoke05@gmail.com" method="POST">
+            <!-- <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+            <label for="email">Your Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+            <label for="message">Your Message</label>
+            <textarea id="message" name="message" rows="5" placeholder="Enter your message" required></textarea>
+
+            <button type="submit">Send Message</button> -->
+
+            <input type="email" name="email" required placeholder="Your Email">
+<textarea name="message" required placeholder="Your Message"></textarea>
+<button type="submit">Send</button>
+        </form>
+        
+        <div id="responseMessage"></div>
+    </div>
+
+    
+</body>
+</html>
+
+<script>
+// document.getElementById("contactForm").addEventListener("submit", function(event) {
+//     event.preventDefault();
+
+//     let name = document.getElementById("name").value;
+//     let email = document.getElementById("email").value;
+//     let message = document.getElementById("message").value;
+//     let responseMessage = document.getElementById("responseMessage");
+
+//     if (name && email && message) {
+//         responseMessage.style.color = "green";
+//         responseMessage.textContent = "Your message has been sent successfully!";
+//         this.reset();
+//     } else {
+//         responseMessage.style.color = "red";
+//         responseMessage.textContent = "Please fill in all fields.";
+//     }
+// });
+</script>
