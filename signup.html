@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>myCinema - Sign Up</title>
-  <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
+    <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -18,140 +18,582 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #121212;
-  color: #fff;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
-}
+        /* Animated Background Elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+            z-index: 0;
+        }
 
-#signupForm {
-  background: #1e1e1e;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  margin: auto;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-}
+        @keyframes moveBackground {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
 
+        /* Logo/Title */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 1;
+            animation: fadeInDown 0.6s ease-out;
+        }
 
-#signupForm input {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #444;
-  background: #242424;
-  color: #fff;
-  border-radius: 5px;
-  font-size: 16px;
-}
+        .auth-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 20px rgba(102, 126, 234, 0.3);
+            margin-bottom: 10px;
+        }
 
-#signupForm input::placeholder {
-  color: #aaa;
-}
+        .auth-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
 
-#signupForm button {
-  background-color: #ffcc00;
+        /* Loading Spinner */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+        }
 
-  color: white;
-  border: none;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: 0.3s;
-}
+        .loading-container.active {
+            display: flex;
+        }
 
-#signupForm button:hover {
-  background-color: #e64d2e;
-}
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
 
-p {
-  margin-top: 15px;
-  font-size: 14px;
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-p a {
-  color: #ffcc00;
-  text-decoration: none;
-  font-weight: bold;
-}
+        /* Form Container */
+        #signupForm {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3),
+                        0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1;
+            animation: fadeInUp 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
 
-p a:hover {
-  text-decoration: underline;
-}
+        #signupForm::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
 
+        #signupForm:hover::before {
+            left: 100%;
+        }
+
+        /* Form Title */
+        #signupForm h2 {
+            color: #ffd700;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Input Fields */
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        #signupForm input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        #signupForm input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        #signupForm input:focus {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #signupForm input:valid {
+            border-color: #28a745;
+        }
+
+        /* Button */
+        #signupForm button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        #signupForm button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        #signupForm button:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        #signupForm button:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+        }
+
+        #signupForm button:active {
+            transform: translateY(-1px);
+        }
+
+        #signupForm button:disabled {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        /* Link Section */
+        .auth-footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.95rem;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .auth-footer p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .auth-footer a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength.active {
+            display: block;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak {
+            width: 33%;
+            background: #dc3545;
+        }
+
+        .strength-medium {
+            width: 66%;
+            background: #ffc107;
+        }
+
+        .strength-strong {
+            width: 100%;
+            background: #28a745;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-header h1 {
+                font-size: 2rem;
+            }
+
+            #signupForm {
+                padding: 30px;
+            }
+
+            #signupForm h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-header h1 {
+                font-size: 1.6rem;
+            }
+
+            #signupForm {
+                padding: 25px;
+            }
+
+            #signupForm input {
+                padding: 12px 16px;
+            }
+
+            #signupForm button {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Loading Spinner -->
+    <div class="loading-container" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p class="loading-text">Creating your account...</p>
+    </div>
+
+    <!-- Header -->
+    <div class="auth-header">
+        <h1>🎬 myCinema</h1>
+        <p>Join us for the ultimate movie experience</p>
+    </div>
+
+    <!-- Sign Up Form -->
     <form id="signupForm">
-        <input type="email" id="signupEmail" placeholder="Email" required>
-        <input type="password" id="signupPassword" placeholder="Password" required>
-        <button type="submit">Sign Up</button>
+        <h2>Create Account</h2>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <div class="input-group">
+            <label for="signupEmail">Email Address</label>
+            <input type="email" id="signupEmail" placeholder="Enter your email" required>
+        </div>
+
+        <div class="input-group">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" placeholder="Create a strong password" required minlength="6">
+            <div class="password-strength" id="passwordStrength">
+                <div class="password-strength-bar" id="passwordStrengthBar"></div>
+            </div>
+        </div>
+
+        <button type="submit" id="signupBtn">Sign Up</button>
     </form>
-    <p>Already have an account? <a href="login.html">Login</a></p>
 
+    <!-- Footer -->
+    <div class="auth-footer">
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
 
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
+            authDomain: "my-cinema-ffb85.firebaseapp.com",
+            databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
+            projectId: "my-cinema-ffb85",
+            storageBucket: "my-cinema-ffb85.appspot.com",
+            messagingSenderId: "1049223253912",
+            appId: "1:1049223253912:web:4a244001cd80720753e5ed",
+            measurementId: "G-H8NBJJMKX3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Show/Hide Loading Spinner
+        function showLoadingSpinner() {
+            document.getElementById("loadingSpinner").classList.add("active");
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById("loadingSpinner").classList.remove("active");
+        }
+
+        // Show Error Message
+        function showError(message) {
+            const errorDiv = document.getElementById("errorMessage");
+            errorDiv.textContent = message;
+            errorDiv.classList.add("active");
+            setTimeout(() => {
+                errorDiv.classList.remove("active");
+            }, 5000);
+        }
+
+        // Show Success Message
+        function showSuccess(message) {
+            const successDiv = document.getElementById("successMessage");
+            successDiv.textContent = message;
+            successDiv.classList.add("active");
+            setTimeout(() => {
+                successDiv.classList.remove("active");
+            }, 3000);
+        }
+
+        // Password Strength Checker
+        document.getElementById("signupPassword").addEventListener("input", function(e) {
+            const password = e.target.value;
+            const strengthDiv = document.getElementById("passwordStrength");
+            const strengthBar = document.getElementById("passwordStrengthBar");
+
+            if (password.length > 0) {
+                strengthDiv.classList.add("active");
+                
+                // Remove all strength classes
+                strengthBar.classList.remove("strength-weak", "strength-medium", "strength-strong");
+
+                // Calculate strength
+                let strength = 0;
+                if (password.length >= 6) strength++;
+                if (password.length >= 10) strength++;
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+                if (/\d/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+                if (strength <= 2) {
+                    strengthBar.classList.add("strength-weak");
+                } else if (strength <= 4) {
+                    strengthBar.classList.add("strength-medium");
+                } else {
+                    strengthBar.classList.add("strength-strong");
+                }
+            } else {
+                strengthDiv.classList.remove("active");
+            }
+        });
+
+        // Sign Up Form
+        document.getElementById("signupForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            const submitBtn = document.getElementById("signupBtn");
+
+            // Validate password length
+            if (password.length < 6) {
+                showError("Password must be at least 6 characters long");
+                return;
+            }
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Creating Account...";
+            showLoadingSpinner();
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    hideLoadingSpinner();
+                    showSuccess("Account created successfully! Redirecting...");
+                    
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                })
+                .catch((error) => {
+                    hideLoadingSpinner();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Sign Up";
+                    
+                    // Handle specific Firebase errors
+                    let errorMessage = error.message;
+                    if (error.code === "auth/email-already-in-use") {
+                        errorMessage = "This email is already registered. Please login instead.";
+                    } else if (error.code === "auth/invalid-email") {
+                        errorMessage = "Please enter a valid email address.";
+                    } else if (error.code === "auth/weak-password") {
+                        errorMessage = "Password is too weak. Please use a stronger password.";
+                    }
+                    
+                    showError(errorMessage);
+                });
+        });
+    </script>
 </body>
 
 </html>
-
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
-    authDomain: "my-cinema-ffb85.firebaseapp.com",
-    databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
-    projectId: "my-cinema-ffb85",
-    storageBucket: "my-cinema-ffb85.appspot.com", // ✅ Fixed storageBucket
-    messagingSenderId: "1049223253912",
-    appId: "1:1049223253912:web:4a244001cd80720753e5ed",
-    measurementId: "G-H8NBJJMKX3"
-  };
-
-   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  // Initialize Firebase
- 
-
-  // Access the database
-  const db = firebase.database(); // ✅ Should work if Firebase is loaded properly
-
-  console.log(db);
-
-
-document.getElementById("signupForm").addEventListener("submit", function (e) {
-    e.preventDefault(); // Prevent form from refreshing
-
-    const email = document.getElementById("signupEmail").value;
-    const password = document.getElementById("signupPassword").value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            alert("Signup successful!");
-            window.location.href = "login.html"; // Redirect to login
-        })
-        .catch((error) => {
-            alert(error.message); // Show error
-        });
-});
-
-</script>
-
-
-
-
-
-
-
-

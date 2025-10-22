@@ -6,6 +6,12 @@
   <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lora&family=Poppins&display=swap" rel="stylesheet">
 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+  integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"></script>
+
     <title>myCinema - Success</title>
 
     <style>
@@ -17,16 +23,16 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #161515;
+    background-color: rgba(0, 0, 0, 0.556);
+    background-blend-mode: darken;
 }
 
 /* Success Message Box */
 .success-container {
-    background: #e7e5e5;
     padding: 30px;
     border-radius: 10px;
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.797);
     width: 50%;
     height: 50vh ;
 }
@@ -41,7 +47,7 @@ body {
 .success-message {
     font-size: 25px;
     font-weight: 600;
-    color: #333;
+    color: white;
     margin-top: 10px;
 }
 
@@ -49,36 +55,193 @@ body {
 .payment-details {
     margin-top: 15px;
     font-size: 16px;
-    color: #555;
+    color: white;
 }
 
-/* Home Button */
-.home-button {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #007bff;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: 0.3s ease;
+
+
+.receipt-container {
+      background: #fff;
+      /* border-radius: 20px; */
+      padding: 2rem;
+      /* width: 380px; */
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .receipt-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(to right, #ff4e50, #f9d423);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+    }
+
+    .receipt-item {
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .value {
+      color: #111;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .download-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      background: linear-gradient(45deg, #ff6a00, #ee0979);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background: linear-gradient(45deg, #ee0979, #ff6a00);
+    }
+
+
+
+    /* @media (max-width: 480px), (max-width: 540px){
+
+        .success-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 50vh ;
 }
 
-.home-button:hover {
-    background-color: #0056b3;
+    } */
+
+
+    .success-container {
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.797);
+    width: 50%;
+    height: 50vh;
+    margin: 0 auto; /* center horizontally */
 }
+
+/* Large tablets and small laptops (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .success-container {
+        width: 65%;
+        height: 55vh;
+        padding: 25px;
+    }
+}
+
+/* Tablets (max-width: 768px) */
+@media (max-width: 768px) {
+    .success-container {
+        width: 75%;
+        height: auto;
+        padding: 20px;
+    }
+}
+
+/* Mobile devices (max-width: 480px) */
+@media (max-width: 480px) {
+    .success-container {
+        width: 90%;
+        height: auto;
+        padding: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Extra small devices (max-width: 360px) */
+@media (max-width: 360px) {
+    .success-container {
+        width: 95%;
+        padding: 10px;
+        border-radius: 8px;
+    }
+}
+
     </style>
 </head>
 <body>
 <div class="success-container">
     <div class="success-icon">✔</div>
     <p class="success-message">Payment Successful!</p>
-    <p class="success-message">Your money don go like that</p>
     <p class="payment-details">Your ticket has been confirmed.</p>
-    <p>Your booking reference: <span id="reference"></span></p>
-    <a href="index.html" class="home-button">Go to Home</a>
+    <p id="bookingreference">Your booking reference: <span id="reference"></span></p>
+    <a href="index.html" class="home-button btn btn-primary">Go to Home</a>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Download Receipt
+  </button>
+
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div div class="receipt-container" id="receipt">
+            <h2>Movie Ticket Receipt</h2>
+        
+            <div class="receipt-item"><span class="label">Receipt ID:</span> <span id="ID"> </span></div>
+            <div class="receipt-item"><span class="label">Ticket Type:</span> <span id="type"> </span> </div>
+            <div class="receipt-item"><span class="label">Purchase Date:</span> <span id="timestamp">April 29, 2025, 11:59 AM UTC </span> </div>
+            <div class="receipt-item"><span class="label">Movie:</span> <span id="movieTitle"> Winter Spring Summer or Fall</span></div>
+            <div class="receipt-item"><span class="label">Location:</span> <span id="location">Oyo</span></div>
+            <div class="receipt-item"><span class="label">Show Time:</span> <span id="time">12:00 PM</span> </div>
+            <div class="receipt-item"><span class="label">Seat(s):</span> <span id="seatNo">Seat 8</span> </div>
+            <div class="receipt-item"><span class="label">Ticket Quantity:</span> <span id="quantity">1</span>  </div>
+            
+        
+            <button class="download-btn" onclick="downloadPDF()">Download as PDF</button>
+        
+            <div class="footer">
+              Thank you for your purchase!<br>
+              Please arrive 15 minutes before showtime.
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </body>
 </html>
 
@@ -86,5 +249,60 @@ body {
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
+    console.log(urlParams);
+    
     document.getElementById("reference").innerText = urlParams.get("reference");
+
+      let dataOFMovie = JSON.parse(localStorage.getItem("TheMovieData"))
+  console.log(dataOFMovie);
+  bookingreference.style.color = "white"
+
+//  document.body.style.backgroundColor = 'blue';
+
+    const backdropUrl = `https://image.tmdb.org/t/p/w1280/${dataOFMovie.backdrop_path}`;
+
+        
+            document.body.style.backgroundImage = `url(${backdropUrl})`;
+            document.body.style.backgroundSize = "cover";
+            // document.body.style.backgroundPosition = "center";
+           document.body.stylebackgroundRepeat = "no-repeat";
+
+
+
+
+    let myReceiptDetails = JSON.parse(localStorage.getItem("ticketData"))
+    
+    console.log(myReceiptDetails);
+    type.innerHTML = localStorage.getItem("ticketType")
+    ID.innerHTML = myReceiptDetails.UserID;
+    timestamp.innerHTML = `${myReceiptDetails.timestamp.slice(0,10)}`
+    movieTitle.innerHTML = myReceiptDetails.movie;
+    location.innerHTML = myReceiptDetails.location;
+    time.innerHTML = myReceiptDetails.showTime;
+   
+    let seatsArr = myReceiptDetails.seats;
+    seatNo.innerHTML = seatsArr.join(",")
+
+
+    quantity.innerHTML = myReceiptDetails.amount;
+
+    function downloadPDF() {
+      const element = document.getElementById('receipt');
+      const opt = {
+        margin: 0.5,
+        filename: 'movie-ticket-receipt.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    
+
+
+
+
+
+
 </script>

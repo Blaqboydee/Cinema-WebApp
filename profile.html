@@ -2,233 +2,163 @@
 <html lang="en">
 <head>
     <title>myCinema | My Profile - Manage bookings</title>
-  <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lora&family=Poppins&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lora&family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="profile.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- <script src="firebase-config.js"></script> Your Firebase config -->
-
-    <style>
-
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(black, rgb(107, 104, 104));
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    /* justify-content: center; */
-    /* align-items: center; */
-    min-height: 100vh;
-}
-
-h2{
-    color: white;
-    margin-bottom: 40px;
-}
-
-#bookings {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 500px;
-    max-height: 700px;
-    text-align: center;
-    overflow-y: auto;
-}
-
-
-#bookings div {
-    background: #fafafa;
-    border-left: 5px solid #007bff;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 5px;
-    text-align: left;
-}
-
-
-#bookings p {
-    margin: 5px 0;
-    color: #333;
-}
-
-#bookings strong {
-    color: #222;
-}
-
-
-button {
-    padding: 8px 12px;
-    margin-top: 10px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-#refundBtn {
-    background: #28a745;
-    color: white;
-}
-
-#refundBtn:hover {
-    background: #218838;
-}
-
-.cancelTicket {
-    background: #dc3545;
-    color: white;
-}
-
-.cancelTicket:hover {
-    background: #c82333;
-}
-
-.cancelTicket:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-.goHome{
-    text-decoration: none;
-    background-color: blue;
-    color: white;
-    border: 1px solid black;
-    margin: 20px 0;
-    padding: 10px;
-    width: fit-content;
-}
-    </style>
 </head>
 <body>
     <h2>My Bookings</h2>
+    
+    <!-- Loading Spinner -->
+    <div class="loading-container active" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading your bookings...</p>
+    </div>
+    
     <div id="bookings"></div>
     <a href="index.html" class="goHome">Home</a>
-</body>
-</html>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
-    authDomain: "my-cinema-ffb85.firebaseapp.com",
-    databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
-    projectId: "my-cinema-ffb85",
-    storageBucket: "my-cinema-ffb85.appspot.com",
-    messagingSenderId: "1049223253912",
-    appId: "1:1049223253912:web:4a244001cd80720753e5ed",
-    measurementId: "G-H8NBJJMKX3"
-  };
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
+            authDomain: "my-cinema-ffb85.firebaseapp.com",
+            databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
+            projectId: "my-cinema-ffb85",
+            storageBucket: "my-cinema-ffb85.appspot.com",
+            messagingSenderId: "1049223253912",
+            appId: "1:1049223253912:web:4a244001cd80720753e5ed",
+            measurementId: "G-H8NBJJMKX3"
+        };
 
-   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-  const db = firebase.database(); 
-
-  console.log(db);
-
-
-firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-        const sanitizedEmail = user.email.replace(/\./g, "_"); // Firebase-safe key
-
-        firebase.database().ref(`bookings/${sanitizedEmail}`).once("value", snapshot => {
+        // Show loading skeleton
+        function showSkeletonLoader() {
             const bookingsDiv = document.getElementById("bookings");
-            bookingsDiv.innerHTML = ""; // Clear previous content
+            bookingsDiv.innerHTML = `
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            `;
+        }
 
-            if (snapshot.exists()) {
-                snapshot.forEach(booking => {
-                    const bookingData = booking.val();
-                    const bookingId = booking.key;
+        // Hide loading spinner
+        function hideLoadingSpinner() {
+            const spinner = document.getElementById("loadingSpinner");
+            if (spinner) {
+                spinner.classList.remove("active");
+            }
+        }
 
-                    const bookingHTML = `
-                        <div id="${bookingId}">
-                            <p><strong>Movie:</strong> ${bookingData.movie}</p>
-                            <p><strong>Location:</strong> ${bookingData.location}</p>
-                            <p><strong>Showtime:</strong> ${bookingData.showTime}</p>
-                            <p><strong>Seats:</strong> ${bookingData.seats.join(", ")}</p>
-                            <button id="refundBtn" onclick="refund('${bookingId}')">Request Ticket Cancellation</button>
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                const sanitizedEmail = user.email.replace(/\./g, "_");
 
-                        </div>
-                        <hr>
-                    `;
-                    bookingsDiv.innerHTML += bookingHTML;
+                // Show skeleton loader
+                showSkeletonLoader();
+
+                firebase.database().ref(`bookings/${sanitizedEmail}`).once("value", snapshot => {
+                    const bookingsDiv = document.getElementById("bookings");
+                    bookingsDiv.innerHTML = "";
+
+                    // Hide loading spinner
+                    hideLoadingSpinner();
+
+                    if (snapshot.exists()) {
+                        snapshot.forEach(booking => {
+                            const bookingData = booking.val();
+                            const bookingId = booking.key;
+
+                            const bookingHTML = `
+                                <div id="${bookingId}">
+                                    <p><strong>Movie:</strong> ${bookingData.movie}</p>
+                                    <p><strong>Location:</strong> ${bookingData.location}</p>
+                                    <p><strong>Showtime:</strong> ${bookingData.showTime}</p>
+                                    <p><strong>Seats:</strong> ${bookingData.seats.join(", ")}</p>
+                                    <button id="refundBtn" onclick="refund('${bookingId}')">Request Ticket Cancellation</button>
+                                </div>
+                                <hr>
+                            `;
+                            bookingsDiv.innerHTML += bookingHTML;
+                        });
+                    } else {
+                        bookingsDiv.innerHTML = '<p class="empty-state">No bookings found. Book your first movie now!</p>';
+                    }
+                }).catch(error => {
+                    hideLoadingSpinner();
+                    const bookingsDiv = document.getElementById("bookings");
+                    bookingsDiv.innerHTML = '<p class="empty-state">Error loading bookings. Please try again.</p>';
+                    console.error("Error loading bookings:", error);
                 });
             } else {
-                bookingsDiv.innerHTML = "<p>No bookings found.</p>";
+                hideLoadingSpinner();
+                alert("You need to log in to view your bookings.");
+                window.location.href = "login.html";
             }
         });
-    } else {
-        alert("You need to log in to view your bookings.");
-        window.location.href = "login.html";
-    }
-});
- 
 
+        function refund(bookId) {
+            const user = firebase.auth().currentUser;
 
+            if (user) {
+                const userEmail = user.email.replace(/\./g, "_");
+                const bookingRef = firebase.database().ref(`bookings/${userEmail}/${bookId}`);
 
+                // Show loading state on button
+                const button = event.target;
+                const originalText = button.textContent;
+                button.disabled = true;
+                button.textContent = "Processing...";
 
-function refund(bookId) {
-    const user = firebase.auth().currentUser;
+                bookingRef.once("value")
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            const adminPhone = "2349133763902";
+                            const message = `Hello, I would like to request a refund for my booking. Booking ID: ${bookId}`;
+                            const encodedMessage = encodeURIComponent(message);
 
-    if (user) {
-        const userEmail = user.email.replace(/\./g, "_");
-        const bookingRef = firebase.database().ref(`bookings/${userEmail}/${bookId}`);
+                            // Save the refunded booking ID
+                            let refundedBookings = JSON.parse(localStorage.getItem("refundedBookings")) || [];
+                            if (!refundedBookings.includes(bookId)) {
+                                refundedBookings.push(bookId);
+                                localStorage.setItem("refundedBookings", JSON.stringify(refundedBookings));
+                            }
 
-        bookingRef.once("value")
-            .then(snapshot => {
-                
-                
-                if (snapshot.exists()) {
-                    
-                    const adminPhone = "2349133763902";
-                    const message = `Hello, I would like to request a refund for my booking. Booking ID: ${bookId}`;
-                    const encodedMessage = encodeURIComponent(message);
-
-                    // Save the refunded booking ID in localStorag
-                    let refundedBookings = JSON.parse(localStorage.getItem("refundedBookings")) || [];
-                    if (!refundedBookings.includes(bookId)) {
-                        refundedBookings.push(bookId);
-                        localStorage.setItem("refundedBookings", JSON.stringify(refundedBookings));
-                    }
-
-                    // Redirect to WhatsApp
-                    window.location.href = `https://wa.me/${adminPhone}?text=${encodedMessage}`;
-                } else {
-                    alert("No booking found to request a refund.");
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching booking data:", error);
-            });
-    } else {
-        alert("You must be logged in to request a refund.");
-    }
-}
-
-
-setTimeout(() => {
-    let refundedBookings = JSON.parse(localStorage.getItem("refundedBookings")) || [];
-
-    refundedBookings.forEach(bookId => {
-        let cancelButton = document.querySelector(`[data-booking-id="${bookId}"]`);
-        console.log("Cancel Button after delay:", cancelButton);
-
-        if (cancelButton) {
-            cancelButton.disabled = false;
+                            // Redirect to WhatsApp
+                            window.location.href = `https://wa.me/${adminPhone}?text=${encodedMessage}`;
+                        } else {
+                            alert("No booking found to request a refund.");
+                            button.disabled = false;
+                            button.textContent = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching booking data:", error);
+                        alert("Error processing refund request. Please try again.");
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    });
+            } else {
+                alert("You must be logged in to request a refund.");
+            }
         }
-    });
-}, 2000); // Waits 2 seconds before running
-</script>
 
+        setTimeout(() => {
+            let refundedBookings = JSON.parse(localStorage.getItem("refundedBookings")) || [];
 
-
+            refundedBookings.forEach(bookId => {
+                let cancelButton = document.querySelector(`[data-booking-id="${bookId}"]`);
+                if (cancelButton) {
+                    cancelButton.disabled = false;
+                }
+            });
+        }, 2000);
+    </script>
+</body>
+</html>

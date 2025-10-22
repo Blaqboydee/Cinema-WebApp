@@ -1,0 +1,354 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Header Section */
+h2 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-align: center;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    animation: fadeInDown 0.6s ease-out;
+}
+
+/* Loading Spinner */
+.loading-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.loading-container.active {
+    display: flex;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    color: white;
+    margin-top: 15px;
+    font-size: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Bookings Container */
+#bookings {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+    max-height: 700px;
+    text-align: center;
+    overflow-y: auto;
+    animation: fadeInUp 0.6s ease-out;
+    position: relative;
+}
+
+/* Custom Scrollbar */
+#bookings::-webkit-scrollbar {
+    width: 8px;
+}
+
+#bookings::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#bookings::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #007bff, #0056b3);
+    border-radius: 10px;
+}
+
+#bookings::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #0056b3, #003d82);
+}
+
+/* Empty State */
+#bookings p.empty-state {
+    color: #666;
+    font-size: 1.1rem;
+    padding: 40px 20px;
+}
+
+/* Individual Booking Card */
+#bookings > div {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-left: 5px solid #ffd700;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 15px;
+    text-align: left;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: slideIn 0.4s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+#bookings > div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+#bookings > div:hover::before {
+    left: 100%;
+}
+
+#bookings > div:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Booking Info Text */
+#bookings p {
+    margin: 10px 0;
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+#bookings strong {
+    color: #ffd700;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+/* Separator */
+hr {
+    border: none;
+    border-top: 2px solid #e0e0e0;
+    margin: 20px 0;
+    opacity: 0.5;
+}
+
+/* Buttons */
+button {
+    padding: 12px 24px;
+    margin-top: 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+#refundBtn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+#refundBtn:hover {
+    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+#refundBtn:active {
+    transform: translateY(0);
+}
+
+.cancelTicket {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.cancelTicket:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+}
+
+.cancelTicket:disabled {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
+/* Home Button */
+.goHome {
+    text-decoration: none;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    margin: 30px 0;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-block;
+    box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.goHome:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 123, 255, 0.4);
+}
+
+.goHome:active {
+    transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    #bookings {
+        padding: 20px;
+        max-width: 95%;
+    }
+
+    #bookings > div {
+        padding: 15px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+
+    .goHome {
+        padding: 12px 28px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h2 {
+        font-size: 1.6rem;
+    }
+
+    #bookings {
+        padding: 15px;
+    }
+
+    #bookings p {
+        font-size: 0.85rem;
+    }
+}
+
+/* Skeleton Loading State */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.skeleton-card {
+    height: 150px;
+    margin: 15px 0;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}

@@ -138,1137 +138,549 @@
 </html>
 
 <script>
-  const apiKey = "77a94d7cd28b61ed2a3df3df25c565be";
-  const apiUrl = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`;
-  let moviesArray = [];
-  let index = 0;
-  let theLocation = '';
-  let selectedShowtime = '';
-  const movieApiUrl = `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}&language=en-US&page=1`;
-  const genreApiUrl = `https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=en-US`;
-  const topic = document.querySelector("h1");
-  let genreMap = {};
-  const myCarousel = document.getElementById("myCarousel");
-  const moviePoster = document.getElementById("moviePoster");
-  const moviesList = document.getElementById("movieslist");
-  const nowShowingMovies = document.getElementById("nowShowingMovies");
-  const displayMovies = document.querySelector(".displayMovies");
+  // ============================================
+// API CONFIGURATION
+// ============================================
+const API_KEY = "77a94d7cd28b61ed2a3df3df25c565be";
+const API_BASE_URL = "https://api.themoviedb.org/3";
+const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+const BACKDROP_BASE_URL = "https://image.tmdb.org/t/p/w1280";
 
+// API Endpoints
+const API_ENDPOINTS = {
+  popular: `${API_BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`,
+  nowPlaying: `${API_BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US&page=1`,
+  genres: `${API_BASE_URL}/genre/movie/list?api_key=${API_KEY}&language=en-US`
+};
 
+// ============================================
+// FIREBASE CONFIGURATION
+// ============================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
+  authDomain: "my-cinema-ffb85.firebaseapp.com",
+  databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
+  projectId: "my-cinema-ffb85",
+  storageBucket: "my-cinema-ffb85.appspot.com",
+  messagingSenderId: "1049223253912",
+  appId: "1:1049223253912:web:4a244001cd80720753e5ed",
+  measurementId: "G-H8NBJJMKX3"
+};
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
-    authDomain: "my-cinema-ffb85.firebaseapp.com",
-    databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
-    projectId: "my-cinema-ffb85",
-    storageBucket: "my-cinema-ffb85.appspot.com", // ✅ Fixed storageBucket
-    messagingSenderId: "1049223253912",
-    appId: "1:1049223253912:web:4a244001cd80720753e5ed",
-    measurementId: "G-H8NBJJMKX3"
-  };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+// ============================================
+// GLOBAL STATE
+// ============================================
+let moviesArray = [];
+let genreMap = {};
+let currentIndex = 0;
+let selectedLocation = '';
+let selectedMovie = null;
 
-  // Initialize Firebase
- 
+// DOM Elements
+const elements = {
+  topic: document.querySelector("h1"),
+  moviePoster: document.getElementById("moviePoster"),
+  displayMovies: document.querySelector(".displayMovies"),
+  container: document.getElementById("container"),
+  nowShowingMovies: document.getElementById("nowShowingMovies"),
+  movieDetails: document.getElementById("movieDetails"),
+  seatContainer: document.getElementById("seatContainer"),
+  numberElement: document.getElementById("number"),
+  numberComing: document.getElementById("numberComing"),
+  locationSelect: document.getElementById("location"),
+  stateSelect: document.getElementById("State")
+};
 
-  // Access the database
-  const db = firebase.database(); // ✅ Should work if Firebase is loaded properly
-
-  console.log(db); // Test if database is initialized
-
-
-
+// ============================================
+// AUTHENTICATION
+// ============================================
 auth.onAuthStateChanged((user) => {
-    if (user) {
-        console.log("User is logged in:", user.email);
-    } else {
-        console.log("No user logged in");
-    }
+  console.log(user ? `User logged in: ${user.email}` : "No user logged in");
+  updateAuthUI(user);
 });
 
+function updateAuthUI(user) {
+  const logoutBtn = document.getElementById("logoutBtn");
+  const profileLink = document.getElementById("profileLink");
+  const logIn = document.getElementById("logIn");
 
+  if (user) {
+    logoutBtn.style.display = "block";
+    profileLink.style.display = "block";
+    logIn.style.display = "none";
+  } else {
+    logoutBtn.style.display = "none";
+    profileLink.style.display = "none";
+    logIn.style.display = "block";
+  }
+}
 
-  fetch(genreApiUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      genreMap = data.genres.reduce((map, genre) => {
-        map[genre.id] = genre.name;
-        return map;
-      }, {});
+function logout() {
+  auth.signOut()
+    .then(() => {
+      alert("Logged out successfully.");
+      window.location.href = "index.html";
     })
-    .catch((error) => console.error("Error fetching genres:", error));
+    .catch((error) => console.error("Logout Error:", error));
+}
 
-  // Function to get genre names from IDs
-  function getGenreNames(genreIds) {
-    return genreIds.map((id) => genreMap[id] || "Unknown").join(", ");
-  }
-
-  fetch(apiUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data.results);
-
-      moviesArray = data.results;
-      moviePoster.src = `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}`;
-
-      const backdropUrl = `https://image.tmdb.org/t/p/w1280/${data.results[0].backdrop_path}`;
-
-      displayMovies.style.backgroundImage = `url(${backdropUrl})`;
-      displayMovies.style.backgroundSize = "cover";
-      displayMovies.style.backgroundPosition = "center";
-      displayMovies.style.backgroundRepeat = "no-repeat";
-      displayMovies.style.backdropFilter = "blur(10px)";
-
-      container.innerHTML = moviesArray
-        .map(
-          (myMovie) =>
-            `<div class="listDiv">
-                        <img src="https://image.tmdb.org/t/p/w500${myMovie.poster_path}" alt="" class="listedMovie"> 
-                        <button type="button" class="seeMoreButton" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#staticBackdrop"
-                            data-title="${myMovie.title}" 
-                            data-overview="${myMovie.overview}"
-                            data-release="${myMovie.release_date}"
-                            data-poster="https://image.tmdb.org/t/p/w500${myMovie.poster_path}">
-                            See More
-                        </button>
-                    </div>`
-        )
-        .join("");
-
-      // Add event listener to all "See More" buttons after they are created
-      document.querySelectorAll(".seeMoreButton").forEach((button) => {
-        button.addEventListener("click", function () {
-          let movieTitle = this.getAttribute("data-title").toUpperCase();
-          let movieOverview = this.getAttribute("data-overview");
-          let movieRelease = this.getAttribute("data-release");
-          let moviePoster = this.getAttribute("data-poster");
-
-          // Update modal content
-          document.querySelector(".modal-title").textContent = movieTitle;
-          document.getElementById("modalOverview").textContent = movieOverview;
-          document.getElementById("modalRelease").textContent =
-            "Release Date: " + movieRelease;
-          document.getElementById("modalPoster").src = moviePoster;
-        });
-      });
-
-      document.querySelectorAll(".seeMoreButton").forEach((seebutton) => {
-        seebutton.style.opacity = 0;
-      });
-
-      document.querySelectorAll(".listDiv").forEach((div) => {
-        const seeMoreButton = div.querySelector(".seeMoreButton");
-
-        div.addEventListener("mouseover", () => {
-          seeMoreButton.style.opacity = 1;
-        });
-
-        div.addEventListener("mouseout", () => {
-          seeMoreButton.style.opacity = 0;
-        });
-      });
-
-      next();
-    })
-    .catch((error) => console.error("Error fetching data:", error));
-
-  function next() {
-    setInterval(() => {
-      index = (index + 1) % moviesArray.length;
-
-      moviePoster.style.opacity = 0;
-
-      setTimeout(() => {
-        moviePoster.src = `https://image.tmdb.org/t/p/w500${moviesArray[index].poster_path}`;
-        const backdropUrl = `https://image.tmdb.org/t/p/w1280/${moviesArray[index].backdrop_path}`;
-        displayMovies.style.backgroundImage = `url(${backdropUrl})`;
-        moviePoster.style.opacity = 1;
-      }, 500);
-    }, 2000);
-  }
-
-  getMovies();
-
-  function getMovies() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let nowshowingMovies = data.results.slice(4, 14); // Get a subset of movies
-        let number = document.getElementById("number");
-        topic.innerHTML =`Showing all movies. Select location to see what's avaliable near you`
-        number.innerHTML = nowshowingMovies.length;
-        nowShowingMovies.innerHTML = nowshowingMovies
-          .map(
-            (showingMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                showingMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${showingMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${showingMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                showingMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-
-          
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-          <div class="detailClass">
-            <img src="https://image.tmdb.org/t/p/w500${movieData.poster_path
-              }" alt="Movie Poster" class="posterDetails">
-            <div class="inside">
-            <div class="movieDetailTitle">${movieData.title}</div>
-            <div class="movieDetailGenres">${getGenreNames(
-                movieData.genre_ids
-              )}</div>
-            <div class="movieDetailedOverview">${movieData.overview}</div>
-            <div class="movieDetailedOverview">${movieData.release_date}</div>
-            <div class="movieDetailedOverview">Rating: ${movieData.vote_average
-              }</div>
-            <div class="movieDetailedOverview">Language: ${movieData.original_language
-              }</div>
-              <a href="#movieContent"><button class="buyTicket">Back to Movies</button></a>
-            </div>
-
-          
-          </div>
-        `;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
-  let sortByLag = false;
-  let sortByOyo = false;
-  let sortByOndo = false;
-
-  console.log(sortByLag, sortByOyo, sortByOndo);
-
-  async function nowShowing() {
-    console.log(theLocation);
-
-    if (theLocation === undefined) {
-      getMovies();
-    } else if (theLocation === "Oyo") {
-      sortByOyo = true;
-      sortByOyoState();
-    } else if (theLocation === "Lagos") {
-      sortByLag = true;
-      sortByLagos();
-    } else if (theLocation === "Ondo") {
-      sortByOndo = true;
-      sortByOndoState();
-    } else {
-      getMovies();
-    }
-  }
-
-
-
-// Function to generate the next 7 days
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
 function generateShowDates() {
-  let dates = [];
-  let today = new Date();
+  const dates = [];
+  const today = new Date();
   
   for (let i = 0; i < 7; i++) {
-    let futureDate = new Date();
+    const futureDate = new Date();
     futureDate.setDate(today.getDate() + i);
     
-    let formattedDate = futureDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
-    let displayDate = futureDate.toDateString(); // Example: "Mon, Mar 04 2025"
-    
-    dates.push({ formattedDate, displayDate });
+    dates.push({
+      formattedDate: futureDate.toISOString().split("T")[0],
+      displayDate: futureDate.toDateString()
+    });
   }
   
   return dates;
 }
 
-// Get available dates
-const availableDates = generateShowDates();
+function getGenreNames(genreIds) {
+  return genreIds.map((id) => genreMap[id] || "Unknown").join(", ");
+}
 
-
-  fetch(movieApiUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      let nowshowingMovies = data.results.slice(13, 18);
-      let numberComing = document.getElementById("numberComing");
-
-      let comingSoonMovies = data.results.slice(13, 18);
-      let numberOfmovies = comingSoonMovies.length;
-      console.log(numberOfmovies);
-
-      numberComing.innerHTML = numberOfmovies;
-    })
-    .catch((error) => console.error("Error fetching data:", error));
-
-  async function comingSoon() {
-    console.log(theLocation);
-
-    if (theLocation === "Oyo") {
-      soonOyo();
-    } else if (theLocation === "Lagos") {
-      soonInLagos();
-    } else if (theLocation === "Ondo") {
-      soonOndo();
-    } else {
-      let movieContent = document.getElementById("movieContent");
-
-      try {
-        const response = await fetch(movieApiUrl);
-        const data = await response.json();
-        let numberComing = document.getElementById("numberComing");
-        topic.innerHTML = "Coming to My Cinema soon";
-
-        let comingSoonMovies = data.results.slice(13, 18);
-        let numberOfmovies = comingSoonMovies.length;
-        console.log(numberOfmovies);
-
-        numberComing.innerHTML = numberOfmovies;
-        nowShowingMovies.innerHTML = comingSoonMovies
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-          <div class="detailClass">
-            <img src="https://image.tmdb.org/t/p/w500${movieData.poster_path
-              }" alt="Movie Poster" class="posterDetails">
-            <div class="inside">
-            <div class="movieDetailTitle">${movieData.title}</div>
-            <div class="movieDetailGenres">${getGenreNames(
-                movieData.genre_ids
-              )}</div>
-            <div class="movieDetailedOverview">${movieData.overview}</div>
-            <div class="movieDetailedOverview">${movieData.release_date}</div>
-            <div class="movieDetailedOverview">Rating: ${movieData.vote_average
-              }</div>
-            <div class="movieDetailedOverview">Language: ${movieData.original_language
-              }</div>
-                <button class="buyTicket" id="buyTicket">Coming soon</button>
-              <a href="#movieContent"><button class="buyTicket">Back to Movies</button></a>
-            </div>
-
-          
-          </div>
-        `;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
+// ============================================
+// GENRE FETCHING
+// ============================================
+async function fetchGenres() {
+  try {
+    const response = await fetch(API_ENDPOINTS.genres);
+    const data = await response.json();
+    genreMap = data.genres.reduce((map, genre) => {
+      map[genre.id] = genre.name;
+      return map;
+    }, {});
+  } catch (error) {
+    console.error("Error fetching genres:", error);
   }
+}
 
-  function changeLocation() {
-    let location = document.getElementById("location").value;
-    theLocation = location;
-    console.log(theLocation);
-
-    let State = document.getElementById("State");
-
-    if (location === "Oyo") {
-      sortByOyo = true;
-      State.innerHTML = ` <option>Dugbe</option>
-          <option>Samonda</option>`;
-      sortByOyoState();
+// ============================================
+// POPULAR MOVIES CAROUSEL
+// ============================================
+async function fetchPopularMovies() {
+  try {
+    const response = await fetch(API_ENDPOINTS.popular);
+    const data = await response.json();
     
-    } else if (location === "Lagos") {
-      sortByLag = true;
-      State.innerHTML = ` <option >Ikota</option>
-          <option >Landmark</option>
-          <option >Lekki</option>
-          <option >Ajah</option>
-          <option >Ikeja</option>`;
-      sortByLagos();
+    moviesArray = data.results;
+    updateCarousel(0);
+    startCarouselRotation();
+    renderPopularMoviesList(moviesArray);
+  } catch (error) {
+    console.error("Error fetching popular movies:", error);
+  }
+}
+
+function updateCarousel(index) {
+  const movie = moviesArray[index];
+  elements.moviePoster.src = `${IMAGE_BASE_URL}${movie.poster_path}`;
+  elements.displayMovies.style.backgroundImage = `url(${BACKDROP_BASE_URL}${movie.backdrop_path})`;
+  elements.displayMovies.style.backgroundSize = "cover";
+}
+
+function startCarouselRotation() {
+  setInterval(() => {
+    elements.moviePoster.style.opacity = 0;
+    
+    setTimeout(() => {
+      currentIndex = (currentIndex + 1) % moviesArray.length;
+      updateCarousel(currentIndex);
+      elements.moviePoster.style.opacity = 1;
+    }, 1600);
+  }, 4000);
+}
+
+function renderPopularMoviesList(movies) {
+  elements.container.innerHTML = movies
+    .map((movie, id) => `
+      <div class="listDiv">
+        <img src="${IMAGE_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="listedMovie"> 
+        <button type="button" class="seeMoreButton" 
+          data-bs-toggle="modal" 
+          data-bs-target="#staticBackdrop"
+          data-title="${movie.title}" 
+          data-overview="${movie.overview}"
+          data-release="${movie.release_date}"
+          data-poster="${IMAGE_BASE_URL}${movie.poster_path}">
+          See More
+        </button>
+      </div>
+    `)
+    .join("");
+
+  attachSeeMoreListeners();
+}
+
+function attachSeeMoreListeners() {
+  document.querySelectorAll(".seeMoreButton").forEach((button) => {
+    button.style.opacity = 0;
+    
+    button.addEventListener("click", function () {
+      document.querySelector(".modal-title").textContent = this.getAttribute("data-title").toUpperCase();
+      document.getElementById("modalOverview").textContent = this.getAttribute("data-overview");
+      document.getElementById("modalRelease").textContent = `Release Date: ${this.getAttribute("data-release")}`;
+      document.getElementById("modalPoster").src = this.getAttribute("data-poster");
+    });
+  });
+
+  document.querySelectorAll(".listDiv").forEach((div) => {
+    const button = div.querySelector(".seeMoreButton");
+    div.addEventListener("mouseover", () => button.style.opacity = 1);
+    div.addEventListener("mouseout", () => button.style.opacity = 0);
+  });
+}
+
+// ============================================
+// NOW SHOWING MOVIES
+// ============================================
+async function fetchNowShowingMovies() {
+  try {
+    const response = await fetch(API_ENDPOINTS.nowPlaying);
+    const data = await response.json();
+    const movies = data.results.slice(4, 14);
+    
+    elements.topic.innerHTML = selectedLocation 
+      ? `Now Showing in ${selectedLocation}` 
+      : "Showing all movies. Select location to see what's available near you";
+    
+    elements.numberElement.innerHTML = movies.length;
+    renderNowShowingMovies(movies);
+  } catch (error) {
+    console.error("Error fetching now showing movies:", error);
+  }
+}
+
+function renderNowShowingMovies(movies) {
+  console.log(movies);
   
-    } else if (location === "Ondo") {
-      sortByOndo = true;
-      State.innerHTML = ` <option>Akure</option>`;
-      sortByOndoState();
-    
-    } else {
-      topic.innerHTML = "Now Showing";
-      getMovies();
-    }
+  elements.nowShowingMovies.innerHTML = movies
+    .map((movie) => createMovieCard(movie))
+    .join("");
+  
+  attachMovieCardListeners();
+}
+
+function createMovieCard(movie) {
+  return `
+    <a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(movie).replace(/'/g, "&apos;")}'>
+      <div class="nowShowingClass">
+        <img src="${IMAGE_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="poster">
+        <div class="showingMovieTitle">${movie.title}</div>
+        <div class="showingMovieGenres">${getGenreNames(movie.genre_ids)}</div>
+      </div>
+    </a>
+  `;
+}
+
+function attachMovieCardListeners() {
+  document.querySelectorAll(".movie-link").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const movieData = JSON.parse(event.currentTarget.getAttribute("data-movie"));
+      localStorage.setItem("TheMovieData", JSON.stringify(movieData));
+      displayMovieDetails(movieData);
+    });
+  });
+}
+
+function displayMovieDetails(movie) {
+  const availableDates = generateShowDates();
+  const hasShowtimes = selectedLocation && selectedLocation !== "";
+  
+  elements.movieDetails.style.backgroundImage = `url(${BACKDROP_BASE_URL}${movie.backdrop_path})`;
+  elements.movieDetails.innerHTML = `
+    <div class="detailClass">
+      <img src="${IMAGE_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="posterDetails">
+      
+      <div class="inside">
+        <div class="movieDetailTitle">${movie.title}</div>
+        <div class="movieDetailGenres">${getGenreNames(movie.genre_ids)}</div>
+        <div class="movieDetailedOverview">${movie.overview}</div>
+        <div class="movieDetailedOverview">Release Date: ${movie.release_date}</div>
+        <div class="movieDetailedOverview">Rating: ${movie.vote_average}</div>
+        <div class="movieDetailedOverview">Language: ${movie.original_language}</div>
+
+        ${hasShowtimes ? `
+          <div class="showtimeSection">
+            <label for="showDate-${movie.id}">Select Date:</label>
+            <select id="showDate-${movie.id}" class="dateAndtime">
+              ${availableDates.map(date => `<option value="${date.formattedDate}">${date.displayDate}</option>`).join("")}
+            </select>
+
+            <label for="showTime-${movie.id}">Select Showtime:</label>
+            <select id="showTime-${movie.id}" class="showTime dateAndtime" onchange="fetchSeats(${movie.id})">
+              <option value="">Select Time</option>
+              <option value="12:00 PM">12:00 PM</option>
+              <option value="3:00 PM">3:00 PM</option>
+              <option value="6:00 PM">6:00 PM</option>
+              <option value="9:00 PM">9:00 PM</option>
+            </select>
+          </div>
+
+          <button class="buyTicket" onclick="buyMovieTicket(${movie.id})">Buy Ticket</button>
+        ` : `
+          <button class="buyTicket" onclick="alert('Please select a location first')">Select Location First</button>
+        `}
+
+        <a href="#movieContent">
+          <button class="backToMovies">Back to Movies</button>
+        </a>
+      </div>
+    </div>
+  `;
+  
+  elements.movieDetails.scrollIntoView({ behavior: "smooth" });
+}
+
+// ============================================
+// LOCATION FILTERING
+// ============================================
+function changeLocation() {
+  selectedLocation = elements.locationSelect.value;
+  
+  const locationConfig = {
+    "Oyo": { states: ["Dugbe", "Samonda"], movieRange: [12, 18] },
+    "Lagos": { states: ["Ikota", "Landmark", "Lekki", "Ajah", "Ikeja"], movieRange: [5, 10] },
+    "Ondo": { states: ["Akure"], movieRange: [1, 7] }
+  };
+
+  const config = locationConfig[selectedLocation];
+  
+  if (config) {
+    elements.stateSelect.innerHTML = config.states.map(state => `<option>${state}</option>`).join("");
+    filterMoviesByLocation(selectedLocation, config.movieRange);
+  } else {
+    fetchNowShowingMovies();
   }
+}
 
-  function sortByLagos() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let showingInLagos = data.results.slice(5, 10);
-        let number = document.getElementById("number");
-        topic.innerHTML = "Now Showing In Lagos";
-        number.innerHTML = showingInLagos.length;
-        sortByLag = true;
-        nowShowingMovies.innerHTML = showingInLagos
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-  <div class="detailClass">
-    <img src="https://image.tmdb.org/t/p/w500/${movieData.poster_path}" 
-         alt="Movie Poster" class="posterDetails">
+async function filterMoviesByLocation(location, range) {
+  try {
+    const response = await fetch(API_ENDPOINTS.nowPlaying);
+    const data = await response.json();
+    const movies = data.results.slice(range[0], range[1]);
     
-    <div class="inside">
-      <div class="movieDetailTitle">${movieData.title}</div>
-      <div class="movieDetailGenres">${getGenreNames(movieData.genre_ids)}</div>
-      <div class="movieDetailedOverview">${movieData.overview}</div>
-      <div class="movieDetailedOverview">Release Date: ${movieData.release_date}</div>
-      <div class="movieDetailedOverview">Rating: ${movieData.vote_average}</div>
-      <div class="movieDetailedOverview">Language: ${movieData.original_language}</div>
+    elements.topic.innerHTML = `Now Showing in ${location}`;
+    elements.numberElement.innerHTML = movies.length;
+    renderNowShowingMovies(movies);
+  } catch (error) {
+    console.error("Error filtering movies:", error);
+  }
+}
 
-      <!-- Showtimes Section -->
-      <div class="showtimeSection">
-        <label for="showDate-${movieData.id}">Select Date:</label>
-        <select id="showDate-${movieData.id}" class="dateAndtime">
-          ${availableDates
-            .map((date) => `<option value="${date.formattedDate}">${date.displayDate}</option>`)
-            .join("")}
-        </select>
+// ============================================
+// COMING SOON MOVIES
+// ============================================
+async function fetchComingSoonMovies() {
+  try {
+    const response = await fetch(API_ENDPOINTS.nowPlaying);
+    const data = await response.json();
+    const movies = data.results.slice(13, 18);
+    
+    elements.topic.innerHTML = selectedLocation 
+      ? `Coming Soon in ${selectedLocation}` 
+      : "Coming to My Cinema Soon";
+    
+    elements.numberComing.innerHTML = movies.length;
+    renderComingSoonMovies(movies);
+  } catch (error) {
+    console.error("Error fetching coming soon movies:", error);
+  }
+}
 
+function renderComingSoonMovies(movies) {
+  elements.nowShowingMovies.innerHTML = movies
+    .map((movie) => createMovieCard(movie))
+    .join("");
+  
+  // Attach listeners for coming soon movies
+  document.querySelectorAll(".movie-link").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const movieData = JSON.parse(event.currentTarget.getAttribute("data-movie"));
+      displayComingSoonDetails(movieData);
+    });
+  });
+}
+
+function displayComingSoonDetails(movie) {
+  elements.movieDetails.style.backgroundImage = `url(${BACKDROP_BASE_URL}${movie.backdrop_path})`;
+  elements.movieDetails.innerHTML = `
+    <div class="detailClass">
+      <img src="${IMAGE_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="posterDetails">
+      
+      <div class="inside">
+        <div class="movieDetailTitle">${movie.title}</div>
+        <div class="movieDetailGenres">${getGenreNames(movie.genre_ids)}</div>
+        <div class="movieDetailedOverview">${movie.overview}</div>
+        <div class="movieDetailedOverview">Release Date: ${movie.release_date}</div>
+        <div class="movieDetailedOverview">Rating: ${movie.vote_average}</div>
+        <div class="movieDetailedOverview">Language: ${movie.original_language}</div>
         
-         <label for="showTime-${movieData.id}">Select Showtime:</label>
-        <select id="showTime-${movieData.id}" class="showTime dateAndtime" onchange="fetchSeats()">
-          <option value="">Select Time</option>
-          <option value="12:00 PM">12:00 PM</option>
-          <option value="3:00 PM">3:00 PM</option>
-          <option value="6:00 PM">6:00 PM</option>
-          <option value="9:00 PM">9:00 PM</option>
-        </select>
-      </div
-
-
-      <!-- Buy Ticket Button -->
-      <button class="buyTicket" id="buyTicket-${movieData.id}" 
-              onclick="buyMovieTicket()">
-        Buy Ticket
-      </button>
-
-      <a href="#movieContent">
-        <button class="backToMovies">Back to Movies</button>
-      </a>
+        <button class="buyTicket">Coming Soon</button>
+        <a href="#movieContent">
+          <button class="buyTicket">Back to Movies</button>
+        </a>
+      </div>
     </div>
-  </div>
-`;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-        sortByLag = false;
-        console.log(sortByLag);
-
-        // sortByLag = !sortByLag;
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
-  function soonInLagos() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let numberComing = document.getElementById("numberComing");
-        let lagosSoon = data.results.slice(1, 3);
-        topic.innerHTML = "Coming soon In Lagos";
-
-        numberComing.innerHTML = lagosSoon.length;
-        console.log(lagosSoon.length);
-        sortByLag = !sortByLag;
-        sortByLag = true;
-        nowShowingMovies.innerHTML = lagosSoon
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-          <div class="detailClass">
-            <img src="https://image.tmdb.org/t/p/w500${movieData.poster_path
-              }" alt="Movie Poster" class="posterDetails">
-            <div class="inside">
-            <div class="movieDetailTitle">${movieData.title}</div>
-            <div class="movieDetailGenres">${getGenreNames(
-                movieData.genre_ids
-              )}</div>
-            <div class="movieDetailedOverview">${movieData.overview}</div>
-            <div class="movieDetailedOverview">${movieData.release_date}</div>
-            <div class="movieDetailedOverview">Rating: ${movieData.vote_average
-              }</div>
-            <div class="movieDetailedOverview">Language: ${movieData.original_language
-              }</div>
-                <button class="buyTicket" id="buyTicket">Coming soon</button>
-              <a href="#movieContent"><button class="buyTicket">Back to Movies</button></a>
-            </div>
-
-          
-          </div>
-        `;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-        sortByLag = false;
-        console.log(sortByLag);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
-  function sortByOyoState() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let showingInOyo = data.results.slice(12, 18);
-        console.log(showingInOyo);
-
-        let number = document.getElementById("number");
-        topic.innerHTML = "Now Showing In Oyo State";
-        number.innerHTML = showingInOyo.length;
-
-        sortByOyo = true;
-        nowShowingMovies.innerHTML = showingInOyo
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-  <div class="detailClass">
-    <img src="https://image.tmdb.org/t/p/w500/${movieData.poster_path}" 
-         alt="Movie Poster" class="posterDetails">
-    
-    <div class="inside">
-      <div class="movieDetailTitle">${movieData.title}</div>
-      <div class="movieDetailGenres">${getGenreNames(movieData.genre_ids)}</div>
-      <div class="movieDetailedOverview">${movieData.overview}</div>
-      <div class="movieDetailedOverview">Release Date: ${movieData.release_date}</div>
-      <div class="movieDetailedOverview">Rating: ${movieData.vote_average}</div>
-      <div class="movieDetailedOverview">Language: ${movieData.original_language}</div>
-
-       <div class="showtimeSection">
-        <label for="showDate-${movieData.id}">Select Date:</label>
-        <select id="showDate-${movieData.id}" class="dateAndtime">
-          ${availableDates
-            .map((date) => `<option value="${date.formattedDate}">${date.displayDate}</option>`)
-            .join("")}
-        </select>
-
-
-        <label for="showTime-${movieData.id}">Select Showtime:</label>
-        <select id="showTime-${movieData.id}" class="showTime dateAndtime" onchange="fetchSeats()">
-          <option value="">Select Time</option>
-          <option value="12:00 PM">12:00 PM</option>
-          <option value="3:00 PM">3:00 PM</option>
-          <option value="6:00 PM">6:00 PM</option>
-          <option value="9:00 PM">9:00 PM</option>
-        </select>
-      </div
-
-      <!-- Buy Ticket Button -->
-      <button class="buyTicket" id="buyTicket-${movieData.id}" 
-              onclick="buyMovieTicket('${movieData.title}', '${movieData.id}')">
-        Buy Ticket
-      </button>
-
-      <a href="#movieContent">
-        <button class="backToMovies">Back to Movies</button>
-      </a>
-    </div>
-  </div>
-`;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-        sortByOyo = false;
-        console.log(sortByOyo);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
-  function soonOyo() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let numberComing = document.getElementById("numberComing");
-        let oyoSoon = data.results.slice(17, 19);
-        topic.innerHTML = "Coming soon In Oyo State";
-
-        numberComing.innerHTML = oyoSoon.length;
-        console.log(oyoSoon.length);
-
-        // sortByOyo = true;
-        nowShowingMovies.innerHTML = oyoSoon
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-          <div class="detailClass">
-            <img src="https://image.tmdb.org/t/p/w500${movieData.poster_path
-              }" alt="Movie Poster" class="posterDetails">
-            <div class="inside">
-            <div class="movieDetailTitle">${movieData.title}</div>
-            <div class="movieDetailGenres">${getGenreNames(
-                movieData.genre_ids
-              )}</div>
-            <div class="movieDetailedOverview">${movieData.overview}</div>
-            <div class="movieDetailedOverview">${movieData.release_date}</div>
-            <div class="movieDetailedOverview">Rating: ${movieData.vote_average
-              }</div>
-            <div class="movieDetailedOverview">Language: ${movieData.original_language
-              }</div>
-                <button class="buyTicket" id="buyTicket">Coming soon</button>
-              <a href="#movieContent"><button class="buyTicket">Back to Movies</button></a>
-            </div>
-
-          
-          </div>
-        `;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-        sortByOyo = !sortByOyo;
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
-  function sortByOndoState() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let showingInOndo = data.results.slice(1, 7);
-        console.log(showingInOndo);
-
-        let number = document.getElementById("number");
-        topic.innerHTML = "Now Showing In Ondo State";
-        number.innerHTML = showingInOndo.length;
-
-        sortByOndo = true;
-        nowShowingMovies.innerHTML = showingInOndo
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-  <div class="detailClass">
-    <img src="https://image.tmdb.org/t/p/w500/${movieData.poster_path}" 
-         alt="Movie Poster" class="posterDetails">
-    
-    <div class="inside">
-      <div class="movieDetailTitle">${movieData.title}</div>
-      <div class="movieDetailGenres">${getGenreNames(movieData.genre_ids)}</div>
-      <div class="movieDetailedOverview">${movieData.overview}</div>
-      <div class="movieDetailedOverview">Release Date: ${movieData.release_date}</div>
-      <div class="movieDetailedOverview">Rating: ${movieData.vote_average}</div>
-      <div class="movieDetailedOverview">Language: ${movieData.original_language}</div>
-
-       <div class="showtimeSection">
-        <label for="showDate-${movieData.id}">Select Date:</label>
-        <select id="showDate-${movieData.id}" class="dateAndtime">
-          ${availableDates
-            .map((date) => `<option value="${date.formattedDate}">${date.displayDate}</option>`)
-            .join("")}
-        </select>
-
-          <label for="showTime-${movieData.id}">Select Showtime:</label>
-        <select id="showTime-${movieData.id}" class="showTime dateAndtime" onchange="fetchSeats()">
-          <option value="">Select Time</option>
-          <option value="12:00 PM">12:00 PM</option>
-          <option value="3:00 PM">3:00 PM</option>
-          <option value="6:00 PM">6:00 PM</option>
-          <option value="9:00 PM">9:00 PM</option>
-        </select>
-      </div
-
-      <!-- Buy Ticket Button -->
-      <button class="buyTicket" id="buyTicket-${movieData.id}" 
-              onclick="buyMovieTicket('${movieData.title}', '${movieData.id}')">
-        Buy Ticket
-      </button>
-
-      <a href="#movieContent">
-        <button class="backToMovies">Back to Movies</button>
-      </a>
-    </div>
-  </div>
-`;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-        sortByOndo = false;
-        // console.log(sortByOyo);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
-  function soonOndo() {
-    fetch(movieApiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        let numberComing = document.getElementById("numberComing");
-        let ondoSoon = data.results.slice(12, 16);
-        topic.innerHTML = "Coming soon In Ondo State";
-        numberComing.innerHTML = ondoSoon.length;
-        console.log(ondoSoon.length);
-
-        // sortByondo = true;
-        nowShowingMovies.innerHTML = ondoSoon
-          .map(
-            (soonMovie) =>
-              `<a href="#movieDetails" class="movie-link" data-movie='${JSON.stringify(
-                soonMovie
-              ).replace(/'/g, "&apos;")}'>
-            <div class="nowShowingClass">
-              <img src="https://image.tmdb.org/t/p/w500${soonMovie.poster_path
-              }" alt="Movie Poster" class="poster">
-              <div class="showingMovieTitle">${soonMovie.title}</div>
-              <div class="showingMovieGenres">${getGenreNames(
-                soonMovie.genre_ids
-              )}</div>
-            </div>
-          </a>`
-          )
-          .join("");
-
-        // Add click event to update movie details dynamically
-        document.querySelectorAll(".movie-link").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevent default anchor behavior
-            let movieData = JSON.parse(
-              event.currentTarget.getAttribute("data-movie")
-            );
-            const backdropUrl = `https://image.tmdb.org/t/p/w1280/${movieData.backdrop_path}`;
-
-            // Update the movie details section
-            let movieDetails = document.getElementById("movieDetails");
-
-            movieDetails.style.backgroundImage = `url(${backdropUrl})`;
-            movieDetails.style.backgroundSize = "cover";
-            movieDetails.style.backgroundPosition = "center";
-            movieDetails.style.backgroundRepeat = "no-repeat";
-            //  movieDetails.style.backdropFilter = "blur(4090px)";
-            movieDetails.innerHTML = `
-          <div class="detailClass">
-            <img src="https://image.tmdb.org/t/p/w500${movieData.poster_path
-              }" alt="Movie Poster" class="posterDetails">
-            <div class="inside">
-            <div class="movieDetailTitle">${movieData.title}</div>
-            <div class="movieDetailGenres">${getGenreNames(
-                movieData.genre_ids
-              )}</div>
-            <div class="movieDetailedOverview">${movieData.overview}</div>
-            <div class="movieDetailedOverview">${movieData.release_date}</div>
-            <div class="movieDetailedOverview">Rating: ${movieData.vote_average
-              }</div>
-            <div class="movieDetailedOverview">Language: ${movieData.original_language
-              }</div>
-                <button class="buyTicket">Coming soon</button>
-              <a href="#movieContent"><button class="buyTicket">Back to Movies</button></a>
-            </div>
-
-          
-          </div>
-        `;
-
-            // Smoothly scroll to the movie details section
-            movieDetails.scrollIntoView({ behavior: "smooth" });
-          });
-        });
-        sortByOndo = !sortByOndo;
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }
-
- console.log(theLocation);
-
-
-  function initializeSeats(location, showTime) {
-    const seatsRef = db.ref(`seats/${location}/${showTime}`);
-
-    seatsRef.once("value").then(snapshot => {
-        if (!snapshot.exists()) {  // Only create seats if they don't exist
-            let seatsData = {};
-            for (let i = 1; i <= 50; i++) {
-                seatsData[i] = { available: true };
-            } 
-
-            seatsRef.set(seatsData)
-                .then(() => console.log(`Seats initialized for ${location} at ${showTime}`))
-                .catch(error => console.error("Error initializing seats:", error));
-        } else {
-            console.log(`Seats already exist for ${location} at ${showTime}. No reset needed.`);
-        }
-    }).catch(error => {
-        console.error("Error checking seats data:", error);
-    });
+  `;
+  
+  elements.movieDetails.scrollIntoView({ behavior: "smooth" });
 }
 
-const seatContainer = document.getElementById("seatContainer");
+// ============================================
+// SEAT MANAGEMENT
+// ============================================
+function initializeSeats(location, showtime, movieId) {
+  const seatsRef = db.ref(`seats/${location}/${showtime}/${movieId}`);
 
-function fetchSeats() {
-  console.log(theLocation );
-    const selectedShowtime = document.querySelector(".showTime").value; 
-    if (!selectedShowtime) return;
+  seatsRef.once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      const seatsData = {};
+      for (let i = 1; i <= 50; i++) {
+        seatsData[i] = { available: true };
+      }
 
-    const seatsRef = firebase.database().ref(`seats/${theLocation}/${selectedShowtime}`);
-
-    seatsRef.once("value", (snapshot) => {
-        if (snapshot.exists()) {
-            console.log(`Seats exist for ${theLocation} at ${selectedShowtime}. Loading seats...`);
-            loadSeats(theLocation, selectedShowtime);
-        } else {
-            console.log(`No seats found for ${theLocation} at ${selectedShowtime}. Initializing seats...`);
-            initializeSeats(theLocation, selectedShowtime);
-        }
-    });
+      seatsRef.set(seatsData)
+        .then(() => console.log(`Seats initialized for ${location} at ${showtime} for movie ID ${movieId}`))
+        .catch(error => console.error("Error initializing seats:", error));
+    }
+  });
 }
 
-function initializeSeats(location, showtime) {
-    const seatsRef = firebase.database().ref(`seats/${theLocation}/${showtime}`);
-    let seatsData = {};
+function fetchSeats(movieId) {
+  const showtimeElement = document.querySelector(".showTime");
+  if (!showtimeElement) return;
+  
+  const selectedShowtime = showtimeElement.value;
+  if (!selectedShowtime || !selectedLocation) return;
+
+  const seatsRef = db.ref(`seats/${selectedLocation}/${selectedShowtime}/${movieId}`);
+
+  seatsRef.once("value", (snapshot) => {
+    if (snapshot.exists()) {
+      loadSeats(selectedLocation, selectedShowtime, movieId);
+    } else {
+      initializeSeats(selectedLocation, selectedShowtime, movieId);
+      loadSeats(selectedLocation, selectedShowtime, movieId);
+    }
+  });
+}
+
+function loadSeats(location, showtime, movieId) {
+  const seatsRef = db.ref(`seats/${location}/${showtime}/${movieId}`);
+  const buyTicketBtn = document.querySelector('.buyTicket');
+
+  seatsRef.once("value", (snapshot) => {
+    const seatsData = snapshot.val() || {};
+    elements.seatContainer.innerHTML = "";
 
     for (let i = 1; i <= 50; i++) {
-        seatsData[i] = { available: true }; 
-    }
+      const seatElement = document.createElement("button");
+      seatElement.innerText = `Seat ${i}`;
+      seatElement.classList.add("seat");
 
-    seatsRef.set(seatsData, (error) => {
-        if (error) {
-            console.error("Error initializing seats:", error);
-        } else {
-            console.log(`Seats initialized for ${location} for ${showtime}. Loading them now...`);
-            loadSeats(showtime); 
-        }
-    });
-}
-
-
-function loadSeats(location, showtime) {
-  let buyTicketBtn = document.querySelector('.buyTicket')
-
-    const seatsRef = firebase.database().ref(`seats/${theLocation}/${showtime}`);
-
-    seatsRef.once("value", (snapshot) => {
-        const seatsData = snapshot.val() || {};
-        seatContainer.innerHTML = ""; // Clear previous seats
-
-        for (let i = 1; i <= 50; i++) {
-            const seatElement = document.createElement("button");
-            seatElement.innerText = `Seat ${i}`;
-            seatElement.classList.add("seat");
-
-            if (seatsData[i]?.available === false) {
-                seatElement.classList.add("booked");
-                seatElement.disabled = true;
-            } else {
-                seatElement.addEventListener("click", function () {
-                    this.classList.toggle("selected");
-                    console.log(`You selected Seat ${i}`);
-                    buyTicketBtn.style.backgroundColor = 'green';
-
-                });
-            }
-
-            seatContainer.appendChild(seatElement);
-        }
-    });
-}
-
-  function buyMovieTicket() {
-    const user = auth.currentUser;
-    const userId = Date.now(); // Generate a unique ID for the booking
-    const selectedSeats = [...document.querySelectorAll(".seat.selected")].map(seat => seat.innerText);
-    const ticketQty = document.querySelectorAll(".seat.selected").length
-    const movieTitle = document.querySelector(".movieDetailTitle").innerText; // Example of getting movie title
-    const showTime = document.querySelector(".showTime").value; // Example of getting showtime
-
-
-
-    console.log("Selected Seats:", selectedSeats);
-
-    if (!user) {
-      alert('Please log in first')
-      window.location.href = 'login.html';
-      return;
-    }
-
-
-    if (!showTime) {
-        alert("Kindly select a showtime and at least a seat below");
-        return;
-    }
-
-    if (selectedSeats.length === 0) {
-        alert("No seats selected! Scroll down to find a seat");
-        return;
-    }
-
-    const ticketData = {
-        UserID : userId,
-        amount: ticketQty,
-        showTime: showTime,
-        location: theLocation,
-        movie: movieTitle,
-        seats: selectedSeats,
-        showTime: showTime,
-        timestamp: new Date().toISOString()
-    };
-
-// Save to localStorage
-localStorage.setItem("ticketData", JSON.stringify(ticketData));
-
-// Redirect to bookings page
-window.location.href = "booking.html";
-      
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            logoutBtn.style.display = "block";
-            profileLink.style.display = 'block'
-            logIn.style.display = 'none'
-             // Show if user is logged in
-        } else {
-            logoutBtn.style.display = "none";
-            profileLink.style.display = 'none'
-            logIn.style.display = 'block'
-             // Hide if no user
-        }
-    });
-
-
-
-logoutBtn.addEventListener("click", () => {
-        auth.signOut().then(() => {
-            alert("Logged out successfully.");
-            window.location.href = "index.html"; // Redirect to homepage
-        }).catch((error) => {
-            console.error("Logout Error:", error);
+      if (seatsData[i]?.available === false) {
+        seatElement.classList.add("booked");
+        seatElement.disabled = true;
+      } else {
+        seatElement.addEventListener("click", function () {
+          this.classList.toggle("selected");
+          console.log(seatElement);
+          
+          if (buyTicketBtn) {
+            buyTicketBtn.style.backgroundColor = 'green';
+          }
         });
-    });
+      }
+
+      elements.seatContainer.appendChild(seatElement);
+    }
+  });
+}
+
+// ============================================
+// TICKET BOOKING
+// ============================================
+function buyMovieTicket(movieId) {
+  const user = auth.currentUser;
+  console.log(movieId);
+  
+  if (!user) {
+    alert('Please log in first');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const selectedSeats = [...document.querySelectorAll(".seat.selected")].map(seat => seat.innerText);
+  console.log(selectedSeats);
+  
+  const showtimeElement = document.querySelector(".showTime");
+  const showtime = showtimeElement ? showtimeElement.value : '';
+  const movieTitle = document.querySelector(".movieDetailTitle")?.innerText || '';
+
+  if (!showtime) {
+    alert("Kindly select a showtime and at least one seat");
+    return;
+  }
+
+  if (selectedSeats.length === 0) {
+    alert("No seats selected! Scroll down to select a seat");
+    return;
+  }
+
+  const ticketData = {
+    UserID: Date.now(),
+    amount: selectedSeats.length,
+    showTime: showtime,
+    location: selectedLocation,
+    movie: movieTitle,
+    seats: selectedSeats,
+    movieId: movieId,
+    timestamp: new Date().toISOString()
+  };
+
+  localStorage.setItem("ticketData", JSON.stringify(ticketData));
+  window.location.href = "booking.html";
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+async function initialize() {
+  await fetchGenres();
+  await fetchPopularMovies();
+  await fetchNowShowingMovies();
+}
+
+// Event Listeners
+document.addEventListener("DOMContentLoaded", () => {
+  initialize();
+  
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
 });
 
-
-
+// Export functions for global access (if needed)
+window.changeLocation = changeLocation;
+window.fetchSeats = fetchSeats;
+window.buyMovieTicket = buyMovieTicket;
+window.nowShowing = fetchNowShowingMovies;
+window.comingSoon = fetchComingSoonMovies;
 </script>

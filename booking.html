@@ -18,7 +18,8 @@
     <div class="ticketDetails">
       <h1>Booking Confirmation</h1>
       <p>Movie: <span id="movieTitle"></span></p>
-      <p>Seats: <span id="seatNumbers"></span> <span id="ticketQuantity"></span></p>
+      <p>Seats: <span id="seatNumbers"></span>
+      <span id="ticketQuantity"></span></p>
       <p>Showtime: <span id="showTime"></span></p>
 
      
@@ -76,6 +77,21 @@
   const db = firebase.database(); 
 
   console.log(db);
+
+
+  let dataOFMovie = JSON.parse(localStorage.getItem("TheMovieData"))
+  console.log(dataOFMovie);
+  
+
+//  document.body.style.backgroundColor = 'blue';
+
+    const backdropUrl = `https://image.tmdb.org/t/p/w1280/${dataOFMovie.backdrop_path}`;
+
+        
+            document.body.style.backgroundImage = `url(${backdropUrl})`;
+            document.body.style.backgroundSize = "cover";
+            // document.body.style.backgroundPosition = "center";
+           document.body.stylebackgroundRepeat = "no-repeat";
 
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -148,6 +164,7 @@ let ticketType = ''
   function chooseStandard() {
     ticketType = 'Standard'
     console.log(ticketType)
+    localStorage.setItem("ticketType", ticketType)
     amountToPay = standardPrice * ticketData.seats.length
    reviewAndPay.style.display = 'flex'
    payButton.innerHTML = `Pay N${amountToPay}`
@@ -158,6 +175,7 @@ let ticketType = ''
   function choosePremium() {
     ticketType = 'Premium'
     console.log(ticketType)
+    localStorage.setItem("ticketType", ticketType)
   amountToPay = premiumPrice * ticketData.seats.length
    reviewAndPay.style.display = 'flex'
    payButton.innerHTML = `Pay N${amountToPay}`
@@ -170,10 +188,10 @@ let ticketType = ''
 }
 
 
-function areSeatsAvailable(location, showTime, selectedSeats) {
+function areSeatsAvailable(location, showTime,movieId, selectedSeats) {
     const seatChecks = selectedSeats.map(seat => {
         const seatId = seat.replace("Seat ", "");
-        return firebase.database().ref(`seats/${location}/${showTime}/${seatId}`).once("value")
+        return firebase.database().ref(`seats/${location}/${showTime}/${movieId}/${seatId}`).once("value")
             .then(snapshot => {
                 const seatData = snapshot.val();
                 return seatData && seatData.available; 
@@ -192,15 +210,21 @@ function confirmBooking() {
    payButton.disabled = true
 
     const ticketData = JSON.parse(localStorage.getItem("ticketData"));
+     console.log(ticketData);
+     
+    
+    
 
     if (!ticketData || !ticketData.seats || !ticketData.location || !ticketData.showTime) {
         alert("No booking data found. Please select seats again.");
         return;
     }
 
-    const { location, showTime, seats: selectedSeats } = ticketData;
+    const {amount, location, movie, movieId, showTime, seats } = ticketData;
 
-    areSeatsAvailable(location, showTime, selectedSeats).then(available => {
+    areSeatsAvailable(location, showTime, movieId, seats).then(available => {
+        console.log(location, movie, showTime, movieId, seats);
+        
         if (available) {
             console.log("Seats are available! Proceeding with payment...");
             alert("Seats confirmed! Proceeding to payment.");
@@ -208,8 +232,9 @@ function confirmBooking() {
             // Proceed with payment and Firebase update
 
             const userid = auth. currentUser ? auth. currentUser.uid : Date.now(); // Use user ID if logged in, else generate tempor
-          saveBooking(loggedInUserMail, ticketData.location, ticketData.movie, selectedSeats, ticketData.showTime, ticketData.amount, ticketType, amountToPay);
+          saveBooking(loggedInUserMail, location, movie, seats, showTime, movieId, amount, ticketType, amountToPay);
         } else {
+            
             console.log("Some seats are already booked! Please select different seats.");
             alert("Some of your selected seats are no longer available. Please choose again.");
         }
@@ -221,7 +246,7 @@ function confirmBooking() {
 
 
 
-function saveBooking(userEmail, location, movieTitle, selectedSeats, showTime, ticketQty) {
+function saveBooking(userEmail, location, movie, seats, showTime, movieId, ticketQty, ticketType, amountToPay) {
     // Sanitize email: Replace "." with "_"
     const sanitizedEmail = userEmail.replace(/\./g, "_"); 
 
@@ -230,8 +255,9 @@ function saveBooking(userEmail, location, movieTitle, selectedSeats, showTime, t
     const ticketData = {
         Email: userEmail,
         amount: ticketQty,
-        movie: movieTitle,
-        seats: selectedSeats,
+        movie: movie,
+        id: movieId,
+        seats: seats,
         location: location,
         showTime: showTime,
         timestamp: new Date().toISOString(),
@@ -253,11 +279,12 @@ function saveBooking(userEmail, location, movieTitle, selectedSeats, showTime, t
                 callback: function (response) {
                     console.log("Payment successful:", response);
                     alert("Payment successful! Reference: " + response.reference);
+                    
 
                     // Update seat availability in Firebase **after payment success**
-                    selectedSeats.forEach(seat => {
+                    seats.forEach(seat => {
                         const seatId = seat.replace("Seat ", ""); 
-                        firebase.database().ref(`seats/${location}/${showTime}/${seatId}`).update({ available: false });
+                        firebase.database().ref(`seats/${location}/${showTime}/${movieId}/${seatId}`).update({ available: false });
                     });
 
                     // Redirect to success page
