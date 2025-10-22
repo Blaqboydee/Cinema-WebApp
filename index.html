@@ -400,8 +400,7 @@ function attachMovieCardListeners() {
 function displayMovieDetails(movie) {
   const availableDates = generateShowDates();
   const hasShowtimes = selectedLocation && selectedLocation !== "";
-  
-  elements.movieDetails.style.backgroundImage = `url(${BACKDROP_BASE_URL}${movie.backdrop_path})`;
+
   elements.movieDetails.innerHTML = `
     <div class="detailClass">
       <img src="${IMAGE_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="posterDetails">
@@ -518,7 +517,6 @@ function renderComingSoonMovies(movies) {
 }
 
 function displayComingSoonDetails(movie) {
-  elements.movieDetails.style.backgroundImage = `url(${BACKDROP_BASE_URL}${movie.backdrop_path})`;
   elements.movieDetails.innerHTML = `
     <div class="detailClass">
       <img src="${IMAGE_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="posterDetails">

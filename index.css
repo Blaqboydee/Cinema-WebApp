@@ -500,6 +500,7 @@ nav {
   padding: 40px 50px;
 }
 
+
 .nowshowing h1,
 .topic {
   color: #fff;
@@ -616,6 +617,7 @@ nav {
   gap: 30px;
   padding: 20px 0;
   width: 100%;
+  /* background-color: red; */
 }
 
 .movie-link {
@@ -690,7 +692,7 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 100px 50px;
+  padding: 0px 0px;
   background-blend-mode: darken;
 }
 
@@ -714,7 +716,7 @@ nav {
 .inside {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   flex: 1;
 }
 
@@ -743,6 +745,7 @@ nav {
 
 .buyTicket,
 .backToMovies {
+  width: 100%;
   padding: 15px 30px;
   border-radius: 15px;
   font-weight: 700;
@@ -1036,6 +1039,15 @@ label {
     border-radius: 20px;
   }
 
+  .nowShowingClass img {
+  width: 100%;
+  max-width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px;
+  transition: transform 0.3s ease;
+}
+
   .listDiv img {
     width: 150px;
     height: 225px;
@@ -1043,7 +1055,7 @@ label {
 
   .nowshowing h1,
   .topic {
-    font-size: 1.5rem;
+    font-size: 1rem;
     margin-bottom: 20px;
   }
 
@@ -1054,7 +1066,7 @@ label {
 
   .buttons-nd-drops button {
     font-size: 14px;
-    padding: 10px 15px;
+    padding: 5px 5px;
   }
 
   #number,
@@ -1089,7 +1101,7 @@ label {
   }
 
   .movieDetailTitle {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .movieDetailGenres {
