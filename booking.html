@@ -189,11 +189,17 @@ let ticketType = ''
 
 
 function areSeatsAvailable(location, showTime,movieId, selectedSeats) {
+  console.log(location, showTime, movieId, selectedSeats);
+  
     const seatChecks = selectedSeats.map(seat => {
-        const seatId = seat.replace("Seat ", "");
+        const seatId = seat.replace("SEAT ", "");
+        console.log(seatId);
+        
         return firebase.database().ref(`seats/${location}/${showTime}/${movieId}/${seatId}`).once("value")
             .then(snapshot => {
                 const seatData = snapshot.val();
+                console.log(seatData);
+                
                 return seatData && seatData.available; 
             });
     });
@@ -231,7 +237,8 @@ function confirmBooking() {
 
             // Proceed with payment and Firebase update
 
-            const userid = auth. currentUser ? auth. currentUser.uid : Date.now(); // Use user ID if logged in, else generate tempor
+
+            const userid = ticketData.userID; // Use user ID if logged in, else generate tempor
           saveBooking(loggedInUserMail, location, movie, seats, showTime, movieId, amount, ticketType, amountToPay);
         } else {
             
@@ -283,7 +290,8 @@ function saveBooking(userEmail, location, movie, seats, showTime, movieId, ticke
 
                     // Update seat availability in Firebase **after payment success**
                     seats.forEach(seat => {
-                        const seatId = seat.replace("Seat ", ""); 
+                        console.log(seat);
+                        const seatId = seat.replace("SEAT ", ""); 
                         firebase.database().ref(`seats/${location}/${showTime}/${movieId}/${seatId}`).update({ available: false });
                     });
 

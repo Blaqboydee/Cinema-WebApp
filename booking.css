@@ -1,11 +1,22 @@
 /* ===== TICKET BOOKING PAGE STYLES ===== */
 
+:root {
+  --primary-black: #000000;
+  --dark-gray: #0a0a0a;
+  --medium-gray: #1a1a1a;
+  --light-gray: #2a2a2a;
+  --text-white: #ffffff;
+  --text-gray: #cccccc;
+  --accent-gray: #666666;
+  --hover-gray: #333333;
+}
+
 /* Page Setup */
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  background: var(--dark-gray);
   font-family: "Poppins", sans-serif;
   display: flex;
   justify-content: center;
@@ -20,43 +31,45 @@ body {
   top: 30px;
   left: 30px;
   padding: 12px 24px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
+  background: var(--medium-gray);
+  color: var(--text-white);
+  border: 2px solid var(--light-gray);
+  border-radius: 25px;
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 100;
-  backdrop-filter: blur(10px);
   font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .backButton:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: var(--text-white);
+  color: var(--primary-black);
+  border-color: var(--text-white);
   transform: translateX(-5px);
+  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
 }
 
 .backButton:active {
   transform: translateX(-5px) scale(0.95);
 }
 
-
 /* ===== TICKET DETAILS CONTAINER ===== */
 
 .ticketDetails {
-  background: rgba(30, 30, 30, 0.9);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--medium-gray);
+  border: 2px solid var(--light-gray);
   border-radius: 24px;
   padding: 50px 40px;
   max-width: 700px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  color: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  color: var(--text-white);
   position: relative;
+  animation: slideIn 0.5s ease;
 }
 
 .ticketDetails h1 {
@@ -64,30 +77,48 @@ body {
   font-weight: 800;
   text-align: center;
   margin: 0 0 40px 0;
-  color: #fff;
-  letter-spacing: 1px;
+  color: var(--text-white);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.ticketDetails h1::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: var(--text-white);
 }
 
 .ticketDetails > p {
   font-size: 18px;
   font-weight: 600;
   margin: 15px 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-gray);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  border-left: 4px solid rgba(255, 255, 255, 0.3);
+  padding: 16px 24px;
+  background: var(--light-gray);
+  border-radius: 12px;
+  border-left: 4px solid var(--text-white);
+  transition: all 0.3s ease;
+}
+
+.ticketDetails > p:hover {
+  background: var(--hover-gray);
+  transform: translateX(5px);
 }
 
 .ticketDetails > p span {
-  color: #fff;
+  color: var(--text-white);
   font-weight: 700;
   text-align: right;
 }
-
 
 /* ===== TICKET TYPES SECTION ===== */
 
@@ -100,35 +131,52 @@ body {
 
 .standardTicket,
 .premiumTicket {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: var(--primary-black);
+  border: 2px solid var(--light-gray);
   border-radius: 16px;
-  padding: 25px;
+  padding: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.standardTicket::before,
+.premiumTicket::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left 0.6s;
+}
+
+.standardTicket:hover::before,
+.premiumTicket:hover::before {
+  left: 100%;
 }
 
 .standardTicket:hover,
 .premiumTicket:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  background: var(--light-gray);
+  border-color: var(--text-white);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* Premium Ticket Special Styling */
 .premiumTicket {
-  border-color: rgba(255, 215, 0, 0.3);
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border-color: var(--accent-gray);
 }
 
 .premiumTicket:hover {
-  border-color: rgba(255, 215, 0, 0.5);
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+  border-color: var(--text-white);
 }
 
 .premiumTicket .ticketType::before {
@@ -140,25 +188,27 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .ticketType {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   margin: 0;
-  color: #fff;
+  color: var(--text-white);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .price {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   margin: 0;
-  color: #4caf50;
+  color: var(--text-white);
 }
 
 .premiumTicket .price {
-  color: #ffd700;
+  color: var(--text-white);
 }
 
 /* Ticket Buttons */
@@ -169,47 +219,91 @@ body {
 
 .btns button {
   padding: 14px 28px;
-  background: linear-gradient(135deg, #4caf50, #45a049);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
+  background: var(--text-white);
+  color: var(--primary-black);
+  border: 2px solid var(--text-white);
+  border-radius: 25px;
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: "Poppins", sans-serif;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btns button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  /* background: var(--primary-black); */
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  z-index: 0;
+}
+
+.btns button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btns button span {
+  position: relative;
+  z-index: 1;
 }
 
 .btns button:hover {
+  /* color: var(--text-white); */
   transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
 }
 
 .btns button:active {
   transform: scale(0.98);
 }
 
-.premiumTicket .btns button {
-  background: linear-gradient(135deg, #ffd700, #ffb700);
-}
-
-.premiumTicket .btns button:hover {
-  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
-}
-
 /* Active/Selected State */
 .standardTicket.selected,
 .premiumTicket.selected {
-  border-color: #4caf50;
-  background: rgba(76, 175, 80, 0.1);
+  border-color: var(--text-white);
+  background: var(--hover-gray);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
 }
 
-.premiumTicket.selected {
-  border-color: #ffd700;
-  background: rgba(255, 215, 0, 0.1);
+.standardTicket.selected::after,
+.premiumTicket.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: var(--text-white);
+  color: var(--primary-black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  animation: checkmark 0.3s ease;
 }
 
+@keyframes checkmark {
+  0% {
+    transform: scale(0) rotate(-180deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
 
 /* ===== REVIEW AND PAY SECTION ===== */
 
@@ -220,25 +314,51 @@ body {
 
 #payButton {
   width: 100%;
-  padding: 18px 40px;
-  background: linear-gradient(135deg, #2196f3, #1976d2);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
+  padding: 20px 40px;
+  /* background: var(--text-white); */
+  color: var(--primary-black);
+  border: 2px solid var(--text-white);
+  border-radius: 30px;
   font-weight: 800;
   font-size: 18px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: "Poppins", sans-serif;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.3);
+  letter-spacing: 2px;
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+#payButton::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  /* background: var(--primary-black); */
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  z-index: 0;
+}
+
+#payButton:hover::before {
+  width: 500px;
+  height: 500px;
+}
+
+#payButton span {
+  position: relative;
+  z-index: 1;
 }
 
 #payButton:hover {
+  /* color: var(--text-white); */
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(33, 150, 243, 0.5);
-  background: linear-gradient(135deg, #1976d2, #0d47a1);
+  box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
 }
 
 #payButton:active {
@@ -248,43 +368,45 @@ body {
 /* Logout Button in Ticket Page */
 .ticketDetails #logoutBtn {
   margin-top: 30px;
-  padding: 12px 24px;
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
-  border: 2px solid rgba(244, 67, 54, 0.3);
-  border-radius: 12px;
+  padding: 14px 28px;
+  background: var(--medium-gray);
+  color: var(--text-white);
+  border: 2px solid var(--light-gray);
+  border-radius: 25px;
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: "Poppins", sans-serif;
   width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .ticketDetails #logoutBtn:hover {
-  background: rgba(244, 67, 54, 0.2);
-  border-color: rgba(244, 67, 54, 0.5);
+  background: var(--text-white);
+  color: var(--primary-black);
+  border-color: var(--text-white);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.3);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
 }
 
-
-/* ===== QUANTITY CONTROLS (Optional Enhancement) ===== */
+/* ===== QUANTITY CONTROLS ===== */
 
 .quantityControl {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .quantityControl button {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--light-gray);
+  border: 2px solid var(--hover-gray);
+  color: var(--text-white);
   font-size: 20px;
   font-weight: 700;
   cursor: pointer;
@@ -295,33 +417,31 @@ body {
 }
 
 .quantityControl button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--text-white);
+  color: var(--primary-black);
+  border-color: var(--text-white);
+  transform: scale(1.1);
 }
 
 .quantityControl span {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  min-width: 30px;
+  min-width: 40px;
   text-align: center;
+  color: var(--text-white);
 }
-
 
 /* ===== ANIMATIONS ===== */
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.ticketDetails {
-  animation: slideIn 0.5s ease;
 }
 
 .ticketTypes > * {
@@ -331,7 +451,6 @@ body {
 .ticketTypes > *:nth-child(2) {
   animation-delay: 0.1s;
 }
-
 
 /* ===== RESPONSIVE DESIGN ===== */
 
@@ -345,6 +464,7 @@ body {
   .ticketDetails h1 {
     font-size: 2rem;
     margin-bottom: 30px;
+    letter-spacing: 2px;
   }
 
   .ticketDetails > p {
@@ -352,6 +472,7 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+    padding: 14px 20px;
   }
 
   .ticketDetails > p span {
@@ -362,6 +483,7 @@ body {
   .premiumTicket {
     flex-direction: column;
     align-items: flex-start;
+    padding: 25px;
   }
 
   .btns {
@@ -371,7 +493,7 @@ body {
   .btns button {
     flex: 1;
     padding: 12px 20px;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .backButton {
@@ -396,11 +518,12 @@ body {
   .ticketDetails h1 {
     font-size: 1.75rem;
     margin-bottom: 25px;
+    letter-spacing: 1.5px;
   }
 
   .ticketDetails > p {
     font-size: 15px;
-    padding: 10px 15px;
+    padding: 12px 16px;
   }
 
   .ticketTypes {
@@ -418,17 +541,18 @@ body {
   }
 
   .price {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .btns button {
     padding: 12px 16px;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   #payButton {
     padding: 16px 32px;
     font-size: 16px;
+    letter-spacing: 1.5px;
   }
 
   .backButton {
@@ -447,11 +571,12 @@ body {
 
   .ticketDetails h1 {
     font-size: 1.5rem;
+    letter-spacing: 1px;
   }
 
   .ticketDetails > p {
     font-size: 14px;
-    padding: 8px 12px;
+    padding: 10px 14px;
   }
 
   .ticketType {
@@ -459,7 +584,7 @@ body {
   }
 
   .price {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .btns {
@@ -468,7 +593,7 @@ body {
 
   .btns button {
     width: 100%;
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 
@@ -505,7 +630,6 @@ body {
   }
 }
 
-
 /* ===== UTILITY CLASSES ===== */
 
 /* Hide elements */
@@ -513,28 +637,34 @@ body {
   display: none !important;
 }
 
-/* Success message animation */
+/* Success message */
 .success-message {
-  background: linear-gradient(135deg, #4caf50, #45a049);
-  color: white;
-  padding: 15px 25px;
+  background: var(--text-white);
+  color: var(--primary-black);
+  padding: 18px 30px;
   border-radius: 12px;
   margin: 20px 0;
   text-align: center;
   font-weight: 700;
   animation: slideIn 0.5s ease;
+  border: 2px solid var(--text-white);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* Error message animation */
+/* Error message */
 .error-message {
-  background: linear-gradient(135deg, #f44336, #d32f2f);
-  color: white;
-  padding: 15px 25px;
+  background: var(--medium-gray);
+  color: var(--text-white);
+  padding: 18px 30px;
   border-radius: 12px;
   margin: 20px 0;
   text-align: center;
   font-weight: 700;
   animation: slideIn 0.5s ease;
+  border: 2px solid var(--light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Loading state */
@@ -549,11 +679,11 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 30px;
-  height: 30px;
-  margin: -15px 0 0 -15px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  width: 35px;
+  height: 35px;
+  margin: -17.5px 0 0 -17.5px;
+  border: 4px solid var(--light-gray);
+  border-top-color: var(--text-white);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -561,5 +691,23 @@ body {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Focus States */
+button:focus-visible,
+.backButton:focus-visible {
+  outline: 3px solid var(--text-white);
+  outline-offset: 4px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

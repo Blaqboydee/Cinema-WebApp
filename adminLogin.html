@@ -3,149 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Lora&family=Poppins&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="WhatsApp Image 2025-03-08 at 22.03.05_91a1316a.jpg" type="image/x-icon">
+    <title>Admin Login - myCinema</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        
-#admin-login-form {
-  font-family: "Poppins", sans-serif;
-    width: 300px;
-    margin: 50px auto;
-    padding: 40px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
 
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-  font-family: "Poppins", sans-serif;
+        .container {
+            width: 100%;
+            max-width: 440px;
+        }
 
-}
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
+        .logo h1 {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-#admin-email,
-#admin-password {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-}
+        .logo p {
+            font-size: 14px;
+            color: #666;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
 
+        .admin-badge {
+            display: inline-block;
+            background: #ffffff;
+            color: #000000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 15px;
+        }
 
-button {
-    width: 100%;
-    padding: 10px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
+        #admin-login-form {
+            background: #111111;
+            padding: 50px 40px;
+            border-radius: 20px;
+            border: 1px solid #222;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
 
-button:hover {
-    background: #0056b3;
-}
+        #admin-login-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
 
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #ffffff;
+        }
 
-p {
-    text-align: center;
-    font-size: 14px;
-}
+        .form-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
 
-p a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
 
-p a:hover {
-    text-decoration: underline;
-}
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
-/* Error message */
-#error-message {
-    color: red;
-    font-size: 14px;
-    text-align: center;
-    margin-top: 10px;
-}
+        #admin-email,
+        #admin-password {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid #222;
+            background: #0a0a0a;
+            color: #ffffff;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        #admin-email:focus,
+        #admin-password:focus {
+            border-color: #ffffff;
+            background: #151515;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        #admin-email::placeholder,
+        #admin-password::placeholder {
+            color: #555;
+        }
+
+        button {
+            width: 100%;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #error-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #ff4444;
+            color: #ff6666;
+            display: none;
+        }
+
+        #error-message.show {
+            display: block;
+        }
+
+        .security-notice {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #222;
+            border-radius: 12px;
+        }
+
+        .security-notice .icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .security-notice p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            #admin-login-form {
+                padding: 40px 25px;
+            }
+
+            .logo {
+                margin-bottom: 30px;
+            }
+
+            .logo h1 {
+                font-size: 30px;
+            }
+
+            .logo p {
+                font-size: 12px;
+                letter-spacing: 2px;
+            }
+
+            .admin-badge {
+                font-size: 10px;
+                padding: 5px 14px;
+            }
+
+            .form-title {
+                font-size: 22px;
+            }
+
+            .form-subtitle {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            #admin-login-form {
+                padding: 35px 20px;
+                border-radius: 16px;
+            }
+
+            .logo h1 {
+                font-size: 26px;
+                letter-spacing: 1px;
+            }
+
+            .logo p {
+                font-size: 11px;
+                letter-spacing: 1.5px;
+            }
+
+            .admin-badge {
+                font-size: 9px;
+                padding: 4px 12px;
+                margin-top: 12px;
+            }
+
+            .form-title {
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .form-subtitle {
+                font-size: 12px;
+                margin-bottom: 25px;
+            }
+
+            .input-group {
+                margin-bottom: 20px;
+            }
+
+            .input-group label {
+                font-size: 12px;
+            }
+
+            #admin-email,
+            #admin-password {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 14px;
+            }
+
+            .security-notice {
+                padding: 15px;
+                margin-top: 25px;
+            }
+
+            .security-notice .icon {
+                font-size: 20px;
+            }
+
+            .security-notice p {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            #admin-login-form {
+                padding: 30px 16px;
+            }
+
+            .logo h1 {
+                font-size: 24px;
+            }
+
+            .form-title {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h2>Admin Login</h2>
-    <form id="admin-login-form">
-        <input type="email" id="admin-email" placeholder="Email" required>
-        <input type="password" id="admin-password" placeholder="Password" required>
-        <button id="loginBtn" type="submit">Login</button>
-    </form>
-    <p id="error-message"></p>
+    <div class="container">
+        <div class="logo">
+            <h1>myCINEMA</h1>
+            <p>Administration</p>
+            <span class="admin-badge">Restricted Access</span>
+        </div>
+
+        <form id="admin-login-form">
+            <h2 class="form-title">Admin Portal</h2>
+            <p class="form-subtitle">Authorized personnel only</p>
+            
+            <div class="input-group">
+                <label for="admin-email">Email Address</label>
+                <input type="email" id="admin-email" placeholder="Enter admin email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="admin-password">Password</label>
+                <input type="password" id="admin-password" placeholder="Enter password" required>
+            </div>
+
+            <button id="loginBtn" type="submit">Access Admin Panel</button>
+            
+            <p id="error-message"></p>
+        </form>
+
+        <div class="security-notice">
+            <div class="icon">🔒</div>
+            <p>This area is restricted to authorized administrators only. All access attempts are logged and monitored.</p>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
+            authDomain: "my-cinema-ffb85.firebaseapp.com",
+            databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
+            projectId: "my-cinema-ffb85",
+            storageBucket: "my-cinema-ffb85.appspot.com",
+            messagingSenderId: "1049223253912",
+            appId: "1:1049223253912:web:4a244001cd80720753e5ed",
+            measurementId: "G-H8NBJJMKX3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        const loginBtn = document.getElementById("loginBtn");
+        const errorMessage = document.getElementById("error-message");
+
+        document.getElementById("admin-login-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Verifying...";
+            errorMessage.classList.remove("show");
+            
+            const email = document.getElementById("admin-email").value;
+            const password = document.getElementById("admin-password").value;
+            const formattedEmail = email.replace(/\./g, "_");
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    return firebase.database().ref("admins/" + formattedEmail).once("value");
+                })
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        window.location.href = "admin.html";
+                    } else {
+                        errorMessage.textContent = "Access Denied: You are not authorized as an admin.";
+                        errorMessage.classList.add("show");
+                        auth.signOut();
+                        loginBtn.disabled = false;
+                        loginBtn.innerText = "Access Admin Panel";
+                    }
+                })
+                .catch((error) => {
+                    errorMessage.textContent = "Login failed: " + error.message;
+                    errorMessage.classList.add("show");
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = "Access Admin Panel";
+                });
+        });
+    </script>
 </body>
 </html>
-
-<script>
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAyiKbmo11gTMiCtnGat1dmefuCD4SsOQw",
-    authDomain: "my-cinema-ffb85.firebaseapp.com",
-    databaseURL: "https://my-cinema-ffb85-default-rtdb.firebaseio.com",
-    projectId: "my-cinema-ffb85",
-    storageBucket: "my-cinema-ffb85.appspot.com", // ✅ Fixed storageBucket
-    messagingSenderId: "1049223253912",
-    appId: "1:1049223253912:web:4a244001cd80720753e5ed",
-    measurementId: "G-H8NBJJMKX3"
-  };
-
-   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  const db = firebase.database(); // ✅ Should work if Firebase is loaded properly
-
-  console.log(db);
-
-
-
-  document.getElementById("admin-login-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    loginBtn.innerText = "Please Wait..."
-    const email = document.getElementById("admin-email").value;
-    const password = document.getElementById("admin-password").value;
-    const formattedEmail = email.replace(/\./g, "_");
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            return firebase.database().ref("admins/" + formattedEmail).once("value");
-        })
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                window.location.href = "admin.html"; // Go to admin page
-            } else {
-                alert("You are not an admin!");
-                auth.signOut(); // Log out unauthorized users
-            }
-        })
-        .catch((error) => {
-            alert("Login failed: " + error.message);
-        });
-});
-
-
-
-</script>
