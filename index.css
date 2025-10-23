@@ -33,11 +33,11 @@ body {
   top: 0;
   /* background: rgba(0, 0, 0, 0.95) !important; */
   backdrop-filter: blur(20px);
-  padding: 1.2rem 3rem !important;
+  padding: 0rem 3rem !important;
   border-bottom: 1px solid var(--light-gray);
   position: sticky;
   top: 0;
-  z-index: 9999;
+  z-index: 100;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
   animation: slideDown 0.8s ease;
 }
@@ -182,214 +182,288 @@ body {
 
 }
 
-/* ============================================
-   HERO CAROUSEL SECTION
-============================================ */
+
+/* Hero Section: .displayMovies */
 .displayMovies {
   position: relative;
-  height: 90vh;
-  background-size: cover !important;
-  background-position: center !important;
+  width: 100%;
+  min-height: 70vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   overflow: hidden;
-}
-
-.displayMovies::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(10, 10, 10, 1) 100%);
   z-index: 1;
+  
+  /* Creative cinematic overlay: subtle gradient for depth */
+  background-blend-mode: overlay;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)),
+    var(--backdrop-image, none); /* JS will override the full bg */
+  
+  /* Smooth entrance animation */
+  animation: fadeInHero 1s ease-out;
 }
 
-.displayMovies::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
-  z-index: 2;
-  animation: breathe 4s ease-in-out infinite;
+@keyframes fadeInHero {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes breathe {
-  0%, 100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
+/* Carousel Container */
 #myCarousel {
   position: relative;
-  z-index: 3;
-  perspective: 1000px;
-}
-
-.movieDiv {
+  width: 100%;
+  max-width: 1200px;
+  height: 60vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: float 6s ease-in-out infinite;
+  padding: 0 2rem;
+  z-index: 2;
+  
+  /* Creative: subtle glow effect on hover */
+  transition: box-shadow 0.3s ease;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotateY(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotateY(5deg);
-  }
+#myCarousel:hover {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); /* Golden glow for cinema vibe */
+}
+
+/* Movie Poster Wrapper */
+.movieDiv {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  height: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  
+  /* Creative: 3D tilt on hover */
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.movieDiv:hover {
+  transform: rotateY(5deg) rotateX(5deg) scale(1.05);
 }
 
 #moviePoster {
-  max-width: 400px;
-  border-radius: 20px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 100px rgba(255, 255, 255, 0.1);
-  transition: all 1.6s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+  transition: opacity 0.6s ease, transform 0.4s ease;
+  
+  /* Creative: subtle zoom on load */
+  animation: posterZoom 0.8s ease-out;
 }
 
-#moviePoster:hover {
-  transform: scale(1.05) rotateY(5deg);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95), 0 0 120px rgba(255, 255, 255, 0.2);
+@keyframes posterZoom {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-/* ============================================
-   MOVIES LIST SECTION
-============================================ */
+/* Movies List Section */
 #movieslist {
-  /* background: var(--medium-gray); */
-  padding: 4rem 2rem;
-  /* margin-bottom: 4rem; */
-  border-top: 1px solid var(--light-gray);
-  border-bottom: 1px solid var(--light-gray);
+  position: absolute;
+  bottom: -50px; /* Overlap hero for depth */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  padding: 0 1rem;
+  z-index: 3;
 }
 
 #container {
   display: flex;
-  gap: 2rem;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 0;
   overflow-x: auto;
-  padding: 2rem 1rem;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ff6b35 rgba(255, 255, 255, 0.2);
+  scroll-snap-type: x mandatory;
 }
 
 #container::-webkit-scrollbar {
-  height: 8px;
+  height: 6px;
 }
 
 #container::-webkit-scrollbar-track {
-  background: var(--light-gray);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 10px;
 }
 
 #container::-webkit-scrollbar-thumb {
-  background: var(--text-white);
+  background: #ff6b35;
   border-radius: 10px;
-  transition: background 0.3s;
-}
-
-#container::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-gray);
 }
 
 .listDiv {
   position: relative;
-  min-width: 280px;
-  border-radius: 15px;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
+  min-width: 200px;
+  height: 300px;
   flex-shrink: 0;
-}
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  scroll-snap-align: center;
+  
+  /* Creative: Lift on hover with color shift */
+  cursor: pointer;
 }
 
 .listDiv:hover {
-  transform: translateY(-15px) scale(1.03);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-}
-
-.listDiv::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.9) 100%);
-  z-index: 1;
-  transition: opacity 0.3s;
-}
-
-.listDiv:hover::before {
-  opacity: 0.7;
+  transform: translateY(-10px);
+  background: rgba(37, 36, 36, 0.8); /* Fiery orange for energy */
+  box-shadow: 0 15px 40px rgba(255, 107, 53, 0.3);
 }
 
 .listedMovie {
   width: 100%;
-  height: 420px;
+  height: 80%;
   object-fit: cover;
-  display: block;
-  transition: transform 0.6s ease;
-}
-
-.listDiv:hover .listedMovie {
-  transform: scale(1.1);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .seeMoreButton {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text-white);
-  color: var(--primary-black);
+  width: 100%;
+  padding: 0.5rem;
+ background-color: #000000;
+  color: white;
   border: none;
-  padding: 0.8rem 2rem;
-  border-radius: 25px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  z-index: 2;
+  border-radius: 8px;
+  font-weight: bold;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-  opacity: 0;
-}
-
-.listDiv:hover .seeMoreButton {
-  opacity: 1 !important;
-  transform: translateX(-50%) translateY(-5px);
+  
+  /* Creative: Pulse animation on hover */
 }
 
 .seeMoreButton:hover {
-  background: var(--primary-black);
-  color: var(--text-white);
-  border: 2px solid var(--text-white);
-  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+  animation: pulse 0.6s infinite;
 }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 107, 53, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+}
+
+/* Responsiveness: Mobile First */
+@media (max-width: 768px) {
+  .displayMovies {
+    min-height: 50vh;
+    padding: 1rem 0;
+  }
+  
+  #myCarousel {
+    height: 40vh;
+    padding: 0 1rem;
+  }
+  
+  .movieDiv {
+    max-width: 250px;
+    height: 350px;
+  }
+  
+  #movieslist {
+   display: none;
+  }
+  
+  #container {
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+  
+  .listDiv {
+    min-width: 150px;
+    height: 250px;
+  }
+  
+  .listedMovie {
+    height: 70%;
+  }
+}
+
+@media (max-width: 480px) {
+  .displayMovies {
+    min-height: 40vh;
+  }
+  
+  #myCarousel {
+    height: 30vh;
+    padding: 0 0.5rem;
+  }
+  
+  .movieDiv {
+    max-width: 200px;
+    height: 280px;
+  }
+  
+  #movieslist {
+    bottom: -20px;
+  }
+  
+  #container {
+    gap: 0.8rem;
+  }
+  
+  .listDiv {
+    min-width: 120px;
+    height: 200px;
+    padding: 0.5rem;
+  }
+  
+  .seeMoreButton {
+    font-size: 0.8rem;
+    padding: 0.3rem;
+  }
+}
+
+/* Tablet and up: Enhance layout */
+@media (min-width: 769px) and (max-width: 1024px) {
+  #container {
+    justify-content: flex-start;
+    overflow-x: scroll;
+  }
+  
+  .listDiv {
+    min-width: 180px;
+  }
+}
+
+/* Large screens: Full immersion */
+@media (min-width: 1200px) {
+  .displayMovies {
+    min-height: 80vh;
+  }
+  
+  #myCarousel {
+    height: 70vh;
+  }
+  
+  .movieDiv {
+    max-width: 350px;
+    height: 500px;
+  }
+}
+
 
 /* ============================================
    MOVIE CONTENT SECTION
@@ -439,26 +513,12 @@ body {
   font-family: 'Poppins', sans-serif;
   position: relative;
   overflow: hidden;
+  /* background-color: green; */
+  /* font-size: 10px; */
 }
 
-.buttons button::before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  /* background: var(--text-white); */
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
 
-.buttons button:hover::before {
-  width: 300px;
-  height: 300px;
-}
+
 
 .buttons button:hover {
   /* color: var(--primary-black); */
@@ -471,22 +531,13 @@ body {
   background: var(--text-white);
   color: var(--primary-black);
   padding: 0.3rem 0.8rem;
-  border-radius: 50%;
+  border-radius: 100%;
   margin-left: 0.5rem;
   font-weight: 700;
   position: relative;
   z-index: 1;
-  animation: bounce 2s infinite;
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
 
 .selects {
   display: flex;
@@ -1433,14 +1484,22 @@ button:active {
   }
 
   .buttons {
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
   }
 
   .buttons button {
+    display: flex;
     width: 100%;
     justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    padding: 0.5rem 0.5rem;
   }
+
+   .buttons button span{
+
+   }
 
   .selects {
     flex-direction: column;
@@ -1605,8 +1664,8 @@ button:active {
   }
 
   .buttons button {
-    padding: 0.9rem 1.5rem;
-    font-size: 0.9rem;
+    /* padding: 0 1rem; */
+    font-size: 10px;
   }
 
   .selects select {

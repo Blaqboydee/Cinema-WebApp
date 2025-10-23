@@ -65,9 +65,9 @@
       </div>
     </div>
     <div id="movieslist">
-      <!-- <div id="container">
+      <div id="container">
     
-      </div> -->
+      </div>
     </div>
   </div>
 
@@ -90,12 +90,12 @@
             <option value="Ondo">Ondo</option>
             <option value="Lagos">Lagos</option>
           </select>
-
+<!-- 
           <select name="" id="State">
             <option value="">Province</option>
             <option>Dugbe</option>
             <option>Samonda</option>
-          </select>
+          </select> -->
         </div>
       </div>
 
@@ -192,7 +192,7 @@ const elements = {
   numberElement: document.getElementById("number"),
   numberComing: document.getElementById("numberComing"),
   locationSelect: document.getElementById("location"),
-  stateSelect: document.getElementById("State")
+  // stateSelect: document.getElementById("State")
 };
 
 // ============================================
@@ -452,15 +452,14 @@ function changeLocation() {
   selectedLocation = elements.locationSelect.value;
   
   const locationConfig = {
-    "Oyo": { states: ["Dugbe", "Samonda"], movieRange: [12, 18] },
-    "Lagos": { states: ["Ikota", "Landmark", "Lekki", "Ajah", "Ikeja"], movieRange: [5, 10] },
-    "Ondo": { states: ["Akure"], movieRange: [1, 7] }
+    "Oyo": { movieRange: [12, 18] },
+    "Lagos": {  movieRange: [5, 10] },
+    "Ondo": {  movieRange: [1, 7] }
   };
 
   const config = locationConfig[selectedLocation];
   
   if (config) {
-    elements.stateSelect.innerHTML = config.states.map(state => `<option>${state}</option>`).join("");
     filterMoviesByLocation(selectedLocation, config.movieRange);
   } else {
     fetchNowShowingMovies();
